@@ -17,7 +17,7 @@ export class LiabilityListComponent implements OnInit {
     filteredLiabilities: Liability[] = [];
     loading = true;
     filterType: string = 'ALL';
-    filterStatus: string = 'ACTIVE'; // NEW: Filter for active/closed/all
+    filterStatus: string = 'ALL';
     searchTerm: string = '';
     userCurrency: string = 'INR';
 
