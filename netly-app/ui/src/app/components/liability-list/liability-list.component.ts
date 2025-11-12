@@ -17,6 +17,7 @@ export class LiabilityListComponent implements OnInit {
     filteredLiabilities: Liability[] = [];
     loading = true;
     filterType: string = 'ALL';
+    filterStatus: string = 'ACTIVE'; // NEW: Filter for active/closed/all
     searchTerm: string = '';
     userCurrency: string = 'INR';
 
@@ -99,9 +100,24 @@ export class LiabilityListComponent implements OnInit {
         this.filteredLiabilities = this.liabilities.filter(liability => {
             const matchesType = this.filterType === 'ALL' || liability.liabilityTypeDisplayName === this.filterType;
             const matchesSearch = liability.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-            return matchesType && matchesSearch;
+
+            // Filter by status
+            let matchesStatus = true;
+            if (this.filterStatus === 'ACTIVE') {
+                matchesStatus = (liability.currentBalance ?? 0) > 0;
+            } else if (this.filterStatus === 'CLOSED') {
+                matchesStatus = (liability.currentBalance ?? 0) === 0;
+            }
+            // If 'ALL', matchesStatus remains true
+
+            return matchesType && matchesSearch && matchesStatus;
         });
         this.calculateSummaryStatistics();
+    }
+
+    // Helper method to check if a liability is closed
+    isClosed(liability: Liability): boolean {
+        return (liability.currentBalance ?? 0) === 0;
     }
 
     calculateSummaryStatistics(): void {

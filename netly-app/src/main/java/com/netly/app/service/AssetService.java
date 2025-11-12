@@ -166,7 +166,7 @@ public class AssetService {
         summary.setTotalAssets(assets.size());
         summary.setBreakdown(breakdown);
         summary.setTotalLiabilities(totalLiabilities);
-        summary.setTotalLiabilityCount(liabilities.size());
+        summary.setTotalLiabilityCount((int) liabilities.stream().filter(l -> l.getCurrentBalance() != null && l.getCurrentBalance().compareTo(BigDecimal.ZERO) > 0).count());
         summary.setLiabilityBreakdown(liabilityBreakdown);
         summary.setNetWorth(netWorth);
 
