@@ -1,0 +1,218 @@
+<div class="bg-gradient-to-br from-slate-50 to-slate-100">
+  <div class="p-4 md:p-6 lg:p-8">
+    <div class="max-w-4xl mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6">
+        <h1 class="text-3xl md:text-3xl font-bold text-gray-700 mb-2">
+          {{ isEditMode ? 'Edit Liability' : 'Add New Liability' }}
+        </h1>
+        <p class="text-gray-600">{{ isEditMode ? 'Update your liability information' : 'Add a new liability to track your debts' }}</p>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+        <form (ngSubmit)="onSubmit()" #liabilityForm="ngForm">
+
+          <!-- Form Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+            <!-- Liability Name -->
+            <div class="space-y-2">
+              <label for="name" class="block text-sm font-semibold text-gray-700">
+                Liability Name <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                [(ngModel)]="liability.name"
+                required
+                placeholder="e.g., Home Mortgage, Car Loan"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Liability Type -->
+            <div class="space-y-2">
+              <label for="type" class="block text-sm font-semibold text-gray-700">
+                Liability Type <span class="text-red-500">*</span>
+              </label>
+                <select
+                id="type"
+                name="type"
+                [(ngModel)]="liability.customLiabilityTypeId"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    <option *ngFor="let type of liabilityTypeOptions" [value]="type.id">
+                        {{ type.displayName }}
+                    </option>
+                </select>
+
+            </div>
+
+            <!-- Current Balance -->
+            <div class="space-y-2">
+              <label for="currentBalance" class="block text-sm font-semibold text-gray-700">
+                Current Balance <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                id="currentBalance"
+                name="currentBalance"
+                [(ngModel)]="liability.currentBalance"
+                required
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Original Amount -->
+            <div class="space-y-2">
+              <label for="originalAmount" class="block text-sm font-semibold text-gray-700">
+                Original Loan Amount
+              </label>
+              <input
+                type="number"
+                id="originalAmount"
+                name="originalAmount"
+                [(ngModel)]="liability.originalAmount"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Interest Rate -->
+            <div class="space-y-2">
+              <label for="interestRate" class="block text-sm font-semibold text-gray-700">
+                Interest Rate (%)
+              </label>
+              <input
+                type="number"
+                id="interestRate"
+                name="interestRate"
+                [(ngModel)]="liability.interestRate"
+                step="0.01"
+                min="0"
+                max="100"
+                placeholder="e.g., 3.5"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Monthly Payment -->
+            <div class="space-y-2">
+              <label for="monthlyPayment" class="block text-sm font-semibold text-gray-700">
+                Monthly Payment
+              </label>
+              <input
+                type="number"
+                id="monthlyPayment"
+                name="monthlyPayment"
+                [(ngModel)]="liability.monthlyPayment"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Start Date -->
+            <div class="space-y-2">
+              <label for="startDate" class="block text-sm font-semibold text-gray-700">
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="startDate"
+                name="startDate"
+                [(ngModel)]="liability.startDate"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- End Date -->
+            <div class="space-y-2">
+              <label for="endDate" class="block text-sm font-semibold text-gray-700">
+                End Date (Maturity)
+              </label>
+              <input
+                type="date"
+                id="endDate"
+                name="endDate"
+                [(ngModel)]="liability.endDate"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Lender -->
+            <div class="space-y-2">
+              <label for="lender" class="block text-sm font-semibold text-gray-700">
+                Lender (Bank/Institution)
+              </label>
+              <input
+                type="text"
+                id="lender"
+                name="lender"
+                [(ngModel)]="liability.lender"
+                placeholder="e.g., ABC Bank"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+
+            <!-- Currency -->
+            <div class="space-y-2">
+              <label for="currency" class="block text-sm font-semibold text-gray-700">
+                Currency
+              </label>
+              <select
+                id="currency"
+                name="currency"
+                [(ngModel)]="liability.currency"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                  <option *ngFor="let currency of currencyOptions" [value]="currency.currencyCode">
+                      {{ currency.currencyCode }} - {{ currency.currencyName }}
+                  </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Description (Full Width) -->
+          <div class="space-y-2 mb-6">
+            <label for="description" class="block text-sm font-semibold text-gray-700">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              [(ngModel)]="liability.description"
+              rows="4"
+              placeholder="Add any additional details about this liability..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"></textarea>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              (click)="cancel()"
+              [disabled]="loading">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              [disabled]="!liabilityForm.form.valid || loading">
+              <span *ngIf="!loading">{{ isEditMode ? 'Update Liability' : 'Create Liability' }}</span>
+              <span *ngIf="loading" class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+

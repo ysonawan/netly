@@ -1,0 +1,31 @@
+/* Custom styles for chart canvas - minimal overrides */
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Smooth scrollbar for tables - only show when needed */
+.overflow-auto {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.overflow-auto::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+

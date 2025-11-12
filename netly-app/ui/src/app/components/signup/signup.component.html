@@ -1,0 +1,225 @@
+<div class="min-h-screen flex flex-col lg:flex-row">
+  <!-- Left Side - Brand & Features -->
+  <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 to-purple-700 p-12 flex-col justify-between relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+    </div>
+
+    <div class="relative z-10">
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3 mb-16">
+        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 14 L12 18 L20 10" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="text-3xl font-bold text-white">Netly</span>
+      </div>
+
+      <!-- Main Heading -->
+      <div class="mb-12">
+        <h1 class="text-4xl font-bold text-white mb-4 leading-tight">
+          Start Your Financial<br/>Journey Today
+        </h1>
+        <p class="text-indigo-100 text-lg">
+          Join thousands tracking their complete net worth
+        </p>
+      </div>
+
+      <!-- Feature List -->
+      <div class="space-y-6">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-xl">💼</span>
+          </div>
+          <div>
+            <h3 class="text-white font-semibold mb-1">All Assets in One Place</h3>
+            <p class="text-indigo-100 text-sm">Track equity, real estate, cash, and foreign investments</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-xl">🔐</span>
+          </div>
+          <div>
+            <h3 class="text-white font-semibold mb-1">Your Data Stays Private</h3>
+            <p class="text-indigo-100 text-sm">Bank-grade encryption with complete data isolation</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-xl">📊</span>
+          </div>
+          <div>
+            <h3 class="text-white font-semibold mb-1">Smart Financial Analytics</h3>
+            <p class="text-indigo-100 text-sm">Get insights to optimize your investment strategy</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-xl">⚡</span>
+          </div>
+          <div>
+            <h3 class="text-white font-semibold mb-1">Simple & Intuitive</h3>
+            <p class="text-indigo-100 text-sm">Start tracking your wealth in minutes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Quote -->
+    <div class="relative z-10">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <p class="text-white text-sm italic mb-2">
+          "Netly transformed how I manage my finances. Finally, I can see my complete net worth in one place."
+        </p>
+        <p class="text-indigo-100 text-xs font-medium">— Sarah M., Netly User</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side - Signup Form -->
+  <div class="flex-1 flex items-center justify-center p-6 sm:p-8 bg-gray-50">
+    <div class="w-full max-w-md">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden flex items-center justify-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 14 L12 18 L20 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="text-2xl font-bold text-gray-900">Netly</span>
+      </div>
+
+      <!-- Header -->
+      <div class="mb-8">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
+        <p class="text-gray-600 text-sm sm:text-base">Start managing your financial picture today</p>
+      </div>
+
+      <!-- Signup Form -->
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <!-- Name Field -->
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+            Full name
+          </label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+            [class.border-red-500]="f['name'].invalid && f['name'].touched"
+            [class.ring-red-500]="f['name'].invalid && f['name'].touched"
+            placeholder="John Doe" />
+          <p class="text-red-600 text-sm mt-1" *ngIf="f['name'].invalid && f['name'].touched">
+            Name is required
+          </p>
+        </div>
+
+        <!-- Email Field -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+            Email address
+          </label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+            [class.border-red-500]="f['email'].invalid && f['email'].touched"
+            [class.ring-red-500]="f['email'].invalid && f['email'].touched"
+            placeholder="you@example.com" />
+          <p class="text-red-600 text-sm mt-1" *ngIf="f['email'].invalid && f['email'].touched">
+            <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+            <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+          </p>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+            [class.border-red-500]="f['password'].invalid && f['password'].touched"
+            [class.ring-red-500]="f['password'].invalid && f['password'].touched"
+            placeholder="Minimum 6 characters" />
+          <p class="text-red-600 text-sm mt-1" *ngIf="f['password'].invalid && f['password'].touched">
+            <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+            <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+          </p>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+            Confirm password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+            [class.border-red-500]="f['confirmPassword'].invalid && f['confirmPassword'].touched"
+            [class.ring-red-500]="f['confirmPassword'].invalid && f['confirmPassword'].touched"
+            placeholder="Re-enter your password" />
+          <p class="text-red-600 text-sm mt-1" *ngIf="f['confirmPassword'].invalid && f['confirmPassword'].touched">
+            <span *ngIf="f['confirmPassword'].errors?.['required']">Please confirm your password</span>
+            <span *ngIf="f['confirmPassword'].errors?.['passwordMismatch']">Passwords do not match</span>
+          </p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+          [disabled]="loading">
+          <span *ngIf="loading" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+          {{ loading ? 'Creating account...' : 'Create account' }}
+        </button>
+
+        <p class="text-xs text-gray-500 text-center mt-3">
+          By signing up, you agree to our Terms of Service and Privacy Policy
+        </p>
+      </form>
+
+      <!-- Sign In Link -->
+      <p class="text-center mt-6 text-gray-600 text-sm">
+        Already have an account?
+        <a routerLink="/login" class="text-indigo-600 hover:text-indigo-700 font-semibold">Sign in</a>
+      </p>
+
+      <!-- Security Badges -->
+      <div class="flex items-center justify-center gap-3 sm:gap-4 mt-8 pt-8 border-t border-gray-200 flex-wrap">
+        <div class="flex items-center gap-1.5 text-xs text-gray-600">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <span>256-bit Encryption</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-gray-600">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <span>GDPR Compliant</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
