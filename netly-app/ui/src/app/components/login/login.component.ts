@@ -13,6 +13,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
+  sessionExpiredMessage = '';
   returnUrl: string;
 
   constructor(
@@ -31,6 +32,11 @@ export class LoginComponent {
     });
 
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+
+    // Check if user was redirected due to session expiration
+    if (this.route.snapshot.queryParams['sessionExpired'] === 'true') {
+      this.sessionExpiredMessage = 'Your session has expired. Please login again.';
+    }
   }
 
   get f() {
@@ -44,12 +50,13 @@ export class LoginComponent {
 
     this.loading = true;
     this.errorMessage = '';
+    this.sessionExpiredMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.router.navigate([this.returnUrl]);
       },
-      error: (error) => {
+      error: () => {
         this.errorMessage = 'Invalid email or password';
         this.loading = false;
       }
