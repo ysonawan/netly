@@ -31,7 +31,17 @@ public class LiabilityService {
     @Transactional(readOnly = true)
     public List<LiabilityDTO> getAllLiabilities() {
         User currentUser = getCurrentUser();
-        return liabilityRepository.findByUser(currentUser).stream()
+        return getAllLiabilitiesForUser(currentUser.getId());
+    }
+
+    /**
+     * Get all liabilities for a specific user (used by scheduler)
+     */
+    @Transactional(readOnly = true)
+    public List<LiabilityDTO> getAllLiabilitiesForUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return liabilityRepository.findByUser(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

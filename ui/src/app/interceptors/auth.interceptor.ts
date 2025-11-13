@@ -22,7 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        if (error.status === 401 || error.status === 403) {
           // JWT token expired or invalid - logout and redirect to login
           this.authService.logout();
           this.router.navigate(['/login'], {

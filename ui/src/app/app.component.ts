@@ -11,6 +11,7 @@ import { AuthService } from './services/auth.service';
 export class AppComponent {
   title = 'Netly';
   mobileMenuOpen = false;
+  userMenuOpen = false;
 
   constructor(
     public authService: AuthService,
@@ -19,6 +20,7 @@ export class AppComponent {
 
   logout(): void {
     this.authService.logout();
+    this.closeUserMenu();
     this.router.navigate(['/login']);
   }
 
@@ -28,10 +30,19 @@ export class AppComponent {
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+    this.userMenuOpen = false;
   }
 
   closeMobileMenu(): void {
     this.mobileMenuOpen = false;
+  }
+
+  toggleUserMenu(): void {
+    this.userMenuOpen = !this.userMenuOpen;
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen = false;
   }
 }
 

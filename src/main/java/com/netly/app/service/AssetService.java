@@ -44,6 +44,18 @@ public class AssetService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get all assets for a specific user (used by scheduler)
+     */
+    @Transactional(readOnly = true)
+    public List<AssetDTO> getAllAssetsForUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return assetRepository.findByUser(user).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional(readOnly = true)
     public AssetDTO getAssetById(Long id) {
         User currentUser = getCurrentUser();
@@ -107,6 +119,16 @@ public class AssetService {
     @Transactional(readOnly = true)
     public PortfolioSummaryDTO getPortfolioSummary() {
         User currentUser = getCurrentUser();
+        return getPortfolioSummaryForUser(currentUser.getId());
+    }
+
+    /**
+     * Get portfolio summary for a specific user (used by scheduler)
+     */
+    @Transactional(readOnly = true)
+    public PortfolioSummaryDTO getPortfolioSummaryForUser(Long userId) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
         List<Asset> assets = assetRepository.findByUser(currentUser);
 
         // Convert all asset values to INR before calculations

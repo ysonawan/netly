@@ -19,6 +19,7 @@ import { AssetService } from './services/asset.service';
 import { LiabilityService } from './services/liability.service';
 import { AuthService } from './services/auth.service';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import {ProfileComponent} from "./components/profile/profile.component";
 
 @NgModule({
     declarations: [
@@ -30,7 +31,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
         LiabilityFormComponent,
         LoginComponent,
         SignupComponent,
-        SettingsComponent
+        SettingsComponent,
+        ProfileComponent
     ],
     bootstrap: [AppComponent],
     imports: [
