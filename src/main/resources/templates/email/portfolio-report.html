@@ -122,6 +122,48 @@
             padding: 20px;
             font-style: italic;
         }
+        /* Paid-off loan styling */
+        .item-card.paid-off {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+            opacity: 0.85;
+        }
+        .item-card.paid-off .item-card-header {
+            color: #155724;
+            border-bottom-color: #28a745;
+        }
+        .paid-badge {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .item-card.paid-off .item-field-label {
+            color: #155724;
+        }
+        .item-card.paid-off .item-field-value {
+            color: #155724;
+        }
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 3px solid #6c757d;
+        }
+        .section-subtitle.paid-off-section {
+            color: #28a745;
+            border-left-color: #28a745;
+        }
     </style>
 
     <div class="date-info">
@@ -248,69 +290,135 @@
     <!-- Liabilities Details -->
     <div class="section-title">💳 Liabilities Details</div>
     <div th:if="${liabilities != null && !liabilities.isEmpty()}">
-        <div class="item-card" th:each="liability : ${liabilities}">
-            <div class="item-card-header" th:text="${liability.name}">Liability Name</div>
 
-            <div class="item-field">
-                <span class="item-field-label">Type:</span>
-                <span class="item-field-value" th:text="${liability.liabilityTypeDisplayName ?: liability.liabilityTypeName}">Type</span>
-            </div>
+        <!-- Active Liabilities -->
+        <div th:if="${#lists.size(liabilities.?[currentBalance != null && currentBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0])} > 0">
+            <div class="section-subtitle">Active Loans</div>
+            <div class="item-card"
+                 th:each="liability : ${liabilities}"
+                 th:if="${liability.currentBalance != null && liability.currentBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <div class="item-card-header" th:text="${liability.name}">Liability Name</div>
 
-            <div class="item-field">
-                <span class="item-field-label">Current Balance:</span>
-                <span class="item-field-value" th:text="${formatter.formatCurrency(liability.currentBalance)}">₹0.00</span>
-            </div>
+                <div class="item-field">
+                    <span class="item-field-label">Type:</span>
+                    <span class="item-field-value" th:text="${liability.liabilityTypeDisplayName ?: liability.liabilityTypeName}">Type</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.originalAmount != null}">
-                <span class="item-field-label">Original Amount:</span>
-                <span class="item-field-value" th:text="${formatter.formatCurrency(liability.originalAmount)}">₹0.00</span>
-            </div>
+                <div class="item-field">
+                    <span class="item-field-label">Current Balance:</span>
+                    <span class="item-field-value" th:text="${formatter.formatCurrency(liability.currentBalance)}">₹0.00</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.paidAmount != null}">
-                <span class="item-field-label">Paid Amount:</span>
-                <span class="item-field-value positive" th:text="${formatter.formatCurrency(liability.paidAmount)}">₹0.00</span>
-            </div>
+                <div class="item-field" th:if="${liability.originalAmount != null}">
+                    <span class="item-field-label">Original Amount:</span>
+                    <span class="item-field-value" th:text="${formatter.formatCurrency(liability.originalAmount)}">₹0.00</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.repaymentPercentage != null}">
-                <span class="item-field-label">Repayment %:</span>
-                <span class="item-field-value positive" th:text="${formatter.formatNumber(liability.repaymentPercentage) + '%'}">0.00%</span>
-            </div>
+                <div class="item-field" th:if="${liability.paidAmount != null}">
+                    <span class="item-field-label">Paid Amount:</span>
+                    <span class="item-field-value positive" th:text="${formatter.formatCurrency(liability.paidAmount)}">₹0.00</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.startDate != null}">
-                <span class="item-field-label">Start Date:</span>
-                <span class="item-field-value" th:text="${#temporals.format(liability.startDate, 'MMM dd, yyyy')}">Date</span>
-            </div>
+                <div class="item-field" th:if="${liability.repaymentPercentage != null}">
+                    <span class="item-field-label">Repayment %:</span>
+                    <span class="item-field-value positive" th:text="${formatter.formatNumber(liability.repaymentPercentage) + '%'}">0.00%</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.endDate != null}">
-                <span class="item-field-label">End Date:</span>
-                <span class="item-field-value" th:text="${#temporals.format(liability.endDate, 'MMM dd, yyyy')}">Date</span>
-            </div>
+                <div class="item-field" th:if="${liability.startDate != null}">
+                    <span class="item-field-label">Start Date:</span>
+                    <span class="item-field-value" th:text="${#temporals.format(liability.startDate, 'MMM dd, yyyy')}">Date</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.interestRate != null}">
-                <span class="item-field-label">Interest Rate:</span>
-                <span class="item-field-value" th:text="${formatter.formatNumber(liability.interestRate) + '%'}">0.00%</span>
-            </div>
+                <div class="item-field" th:if="${liability.endDate != null}">
+                    <span class="item-field-label">End Date:</span>
+                    <span class="item-field-value" th:text="${#temporals.format(liability.endDate, 'MMM dd, yyyy')}">Date</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.monthlyPayment != null}">
-                <span class="item-field-label">Monthly Payment:</span>
-                <span class="item-field-value" th:text="${formatter.formatCurrency(liability.monthlyPayment)}">₹0.00</span>
-            </div>
+                <div class="item-field" th:if="${liability.interestRate != null}">
+                    <span class="item-field-label">Interest Rate:</span>
+                    <span class="item-field-value" th:text="${formatter.formatNumber(liability.interestRate) + '%'}">0.00%</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.lender != null && !#strings.isEmpty(liability.lender)}">
-                <span class="item-field-label">Lender:</span>
-                <span class="item-field-value" th:text="${liability.lender}">Lender</span>
-            </div>
+                <div class="item-field" th:if="${liability.monthlyPayment != null}">
+                    <span class="item-field-label">Monthly Payment:</span>
+                    <span class="item-field-value" th:text="${formatter.formatCurrency(liability.monthlyPayment)}">₹0.00</span>
+                </div>
 
-            <div class="item-field">
-                <span class="item-field-label">Currency:</span>
-                <span class="item-field-value" th:text="${liability.currency}">INR</span>
-            </div>
+                <div class="item-field" th:if="${liability.lender != null && !#strings.isEmpty(liability.lender)}">
+                    <span class="item-field-label">Lender:</span>
+                    <span class="item-field-value" th:text="${liability.lender}">Lender</span>
+                </div>
 
-            <div class="item-field" th:if="${liability.description != null && !#strings.isEmpty(liability.description)}">
-                <span class="item-field-label">Description:</span>
-                <span class="item-field-value" th:text="${liability.description}">Description</span>
+                <div class="item-field">
+                    <span class="item-field-label">Currency:</span>
+                    <span class="item-field-value" th:text="${liability.currency}">INR</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.description != null && !#strings.isEmpty(liability.description)}">
+                    <span class="item-field-label">Description:</span>
+                    <span class="item-field-value" th:text="${liability.description}">Description</span>
+                </div>
             </div>
         </div>
+
+        <!-- Paid-Off Liabilities -->
+        <div th:if="${#lists.size(liabilities.?[currentBalance == null || currentBalance.compareTo(T(java.math.BigDecimal).ZERO) == 0])} > 0">
+            <div class="section-subtitle paid-off-section">✅ Paid-Off Loans (Closed)</div>
+            <div class="item-card paid-off"
+                 th:each="liability : ${liabilities}"
+                 th:if="${liability.currentBalance == null || liability.currentBalance.compareTo(T(java.math.BigDecimal).ZERO) == 0}">
+                <div class="item-card-header">
+                    <span th:text="${liability.name}">Liability Name</span>
+                    <span class="paid-badge">✓ PAID OFF</span>
+                </div>
+
+                <div class="item-field">
+                    <span class="item-field-label">Type:</span>
+                    <span class="item-field-value" th:text="${liability.liabilityTypeDisplayName ?: liability.liabilityTypeName}">Type</span>
+                </div>
+
+                <div class="item-field">
+                    <span class="item-field-label">Status:</span>
+                    <span class="item-field-value" style="color: #28a745; font-weight: bold;">CLOSED - FULLY PAID</span>
+                </div>
+
+                <div class="item-field">
+                    <span class="item-field-label">Current Balance:</span>
+                    <span class="item-field-value" style="color: #28a745; font-weight: bold;">₹0.00</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.originalAmount != null}">
+                    <span class="item-field-label">Original Amount:</span>
+                    <span class="item-field-value" th:text="${formatter.formatCurrency(liability.originalAmount)}">₹0.00</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.paidAmount != null}">
+                    <span class="item-field-label">Total Paid:</span>
+                    <span class="item-field-value" style="color: #28a745; font-weight: bold;" th:text="${formatter.formatCurrency(liability.paidAmount)}">₹0.00</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.startDate != null}">
+                    <span class="item-field-label">Start Date:</span>
+                    <span class="item-field-value" th:text="${#temporals.format(liability.startDate, 'MMM dd, yyyy')}">Date</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.endDate != null}">
+                    <span class="item-field-label">Closed Date:</span>
+                    <span class="item-field-value" th:text="${#temporals.format(liability.endDate, 'MMM dd, yyyy')}">Date</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.lender != null && !#strings.isEmpty(liability.lender)}">
+                    <span class="item-field-label">Lender:</span>
+                    <span class="item-field-value" th:text="${liability.lender}">Lender</span>
+                </div>
+
+                <div class="item-field" th:if="${liability.description != null && !#strings.isEmpty(liability.description)}">
+                    <span class="item-field-label">Description:</span>
+                    <span class="item-field-value" th:text="${liability.description}">Description</span>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div th:unless="${liabilities != null && !liabilities.isEmpty()}">
         <p class="no-data">No liabilities found</p>
