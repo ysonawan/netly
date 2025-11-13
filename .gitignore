@@ -60,3 +60,7 @@ coverage/
 # Logs
 logs/
 *.log
+
+config
+
+ui/.angular/
