@@ -39,7 +39,7 @@ public class ResendEmailService {
     private final RedisTemplate<String, ResendEmailPayload> redisTemplate;
     private ScheduledExecutorService emailSenderExecutor;
 
-    private static final String EMAIL_QUEUE_KEY = "email:queue";
+    private static final String EMAIL_QUEUE_KEY = "netly-email:queue";
 
     public void sendEmail(ResendEmailPayload resendEmailPayload) {
         // Enqueue the email payload for rate-limited sending in Redis

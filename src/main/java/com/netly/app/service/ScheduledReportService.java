@@ -18,18 +18,11 @@ public class ScheduledReportService {
     private final ReportingService reportingService;
 
     /**
-     * Sends portfolio reports to all users on the 1st day of every month at 1:00 AM UTC
-     * Cron expression: "0 0 1 1 * ?" means:
-     * - 0 seconds
-     * - 0 minutes
-     * - 1 hours (1 AM UTC)
-     * - 1st day of month
-     * - every month
-     * - any day of week
-     */
-    @Scheduled(cron = "0 0 1 1 * ?", zone = "UTC")
-    public void sendMonthlyReportsToAllUsers() {
-        log.info("Starting scheduled monthly portfolio report generation for all users...");
+     * Sends portfolio reports to all users on the scheduled cron expression.
+     * */
+    @Scheduled(cron = "${report.cron.expression}", zone = "UTC")
+    public void sendPortfolioReportsToAllUsers() {
+        log.info("Starting scheduled portfolio report generation for all users...");
 
         try {
             // Get all users from database
@@ -51,9 +44,9 @@ public class ScheduledReportService {
                 }
             }
 
-            log.info("Scheduled monthly report generation completed. Success: {}, Failed: {}", successCount, failureCount);
+            log.info("Scheduled report generation completed. Success: {}, Failed: {}", successCount, failureCount);
         } catch (Exception e) {
-            log.error("Error during scheduled monthly report generation", e);
+            log.error("Error during scheduled report generation", e);
         }
     }
 
