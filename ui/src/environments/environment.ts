@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://netly.famvest.online/api'
+  production: false,
+  apiUrl: 'http://localhost:8080/api'
 };
 

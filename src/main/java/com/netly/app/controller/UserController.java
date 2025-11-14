@@ -1,5 +1,6 @@
 package com.netly.app.controller;
 
+import com.netly.app.dto.UpdateBasicInfoRequest;
 import com.netly.app.dto.UpdateSecondaryEmailsRequest;
 import com.netly.app.dto.UserProfileDTO;
 import com.netly.app.service.ReportingService;
@@ -22,36 +23,40 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getUserProfile(Authentication authentication) {
-        try {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String email = userDetails.getUsername();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
 
-            com.netly.app.model.User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        com.netly.app.model.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            UserProfileDTO profile = userService.getUserProfile(user.getId());
-            return ResponseEntity.ok(profile);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        UserProfileDTO profile = userService.getUserProfile(user.getId());
+        return ResponseEntity.ok(profile);
     }
 
     @PutMapping("/profile/secondary-emails")
     public ResponseEntity<UserProfileDTO> updateSecondaryEmails(
             @Valid @RequestBody UpdateSecondaryEmailsRequest request,
             Authentication authentication) {
-        try {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String email = userDetails.getUsername();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
 
-            com.netly.app.model.User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        com.netly.app.model.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            UserProfileDTO updatedProfile = userService.updateSecondaryEmails(user.getId(), request);
-            return ResponseEntity.ok(updatedProfile);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        UserProfileDTO updatedProfile = userService.updateSecondaryEmails(user.getId(), request);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
+    @PutMapping("/profile/basic")
+    public ResponseEntity<UserProfileDTO> updateBasicInfo(
+            @RequestBody UpdateBasicInfoRequest request,
+            Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        com.netly.app.model.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserProfileDTO updatedProfile = userService.updateBasicInfo(user.getId(), request);
+        return ResponseEntity.ok(updatedProfile);
     }
 
     @PostMapping("/profile/send-report")

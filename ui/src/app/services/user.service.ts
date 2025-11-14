@@ -20,6 +20,10 @@ export class UserService {
     return this.http.put<UserProfile>(`${this.apiUrl}/user/profile/secondary-emails`, request);
   }
 
+  updateBasicInfo(request: { name: string, email: string }): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.apiUrl}/user/profile/basic`, request);
+  }
+
   sendPortfolioReport(): Observable<string> {
     return this.http.post(`${this.apiUrl}/user/profile/send-report`, {}, { responseType: 'text' });
   }

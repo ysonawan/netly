@@ -1,5 +1,6 @@
 package com.netly.app.service;
 
+import com.netly.app.dto.UpdateBasicInfoRequest;
 import com.netly.app.dto.UpdateSecondaryEmailsRequest;
 import com.netly.app.dto.UserProfileDTO;
 import com.netly.app.model.User;
@@ -63,6 +64,48 @@ public class UserService {
         user.setSecondaryEmails(secondaryEmailsStr);
         User savedUser = userRepository.save(user);
 
+        return convertToDTO(savedUser);
+    }
+
+    @Transactional
+    public UserProfileDTO updateBasicInfo(Long userId, UpdateBasicInfoRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Validate and update email if changed
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            if (!user.getEmail().equalsIgnoreCase(request.getEmail().trim())) {
+                String newEmail = request.getEmail().trim();
+
+                // Check if new email is already in use
+                if (userRepository.findByEmail(newEmail).isPresent()) {
+                    throw new RuntimeException("Email already in use");
+                }
+
+                // Check if new email is part of user's own secondary emails
+                if (user.getSecondaryEmails() != null && !user.getSecondaryEmails().trim().isEmpty()) {
+                    List<String> secondaryEmails = Arrays.stream(user.getSecondaryEmails().split(","))
+                            .map(String::trim)
+                            .filter(email -> !email.isEmpty())
+                            .collect(Collectors.toList());
+
+                    for (String secondaryEmail : secondaryEmails) {
+                        if (secondaryEmail.equalsIgnoreCase(newEmail)) {
+                            throw new RuntimeException("Cannot use your secondary email as primary email");
+                        }
+                    }
+                }
+
+                user.setEmail(newEmail);
+            }
+        }
+
+        // Update name if provided
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            user.setName(request.getName().trim());
+        }
+
+        User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
     }
 

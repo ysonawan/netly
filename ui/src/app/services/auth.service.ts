@@ -56,6 +56,21 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
+  requestOtp(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/request-otp`, { email });
+  }
+
+  verifyOtp(data: { email: string, otp: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/verify-otp`, data)
+      .pipe(
+        tap(response => {
+          localStorage.setItem('currentUser', JSON.stringify(response));
+          localStorage.setItem('token', response.token);
+          this.currentUserSubject.next(response);
+        })
+      );
+  }
+
   isAuthenticated(): boolean {
     return !!this.currentUserValue && !!this.token;
   }
