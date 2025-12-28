@@ -24,6 +24,8 @@ export class DashboardComponent implements OnInit {
   // Chart data
   chartData: any;
   chartOptions: any;
+  liabilityChartData: any;
+  liabilityChartOptions: any;
 
   constructor(
     private assetService: AssetService,
@@ -32,6 +34,7 @@ export class DashboardComponent implements OnInit {
     private router: Router
   ) {
     this.initializeChartOptions();
+    this.initializeLiabilityChartOptions();
     this.loadUserCurrency();
   }
 
@@ -67,6 +70,7 @@ export class DashboardComponent implements OnInit {
       next: (summary) => {
         this.summary = summary;
         this.prepareChartData(summary);
+        this.prepareLiabilityChartDataInternal(summary);
       },
       error: (error) => {
         console.error('Error loading summary:', error);
@@ -101,40 +105,19 @@ export class DashboardComponent implements OnInit {
     // Create labels and data arrays from the dynamic typeBreakdown Map
     const labels: string[] = [];
     const data: number[] = [];
+    const colors: string[] = [];
 
-    // Extended color palette with highly distinct colors
-    const colors = [
-      '#FF0000', // Pure Red
-      '#00FF00', // Pure Green
-      '#0000FF', // Pure Blue
-      '#FF8C00', // Dark Orange
-      '#FF00FF', // Pure Magenta
-      '#808080', // Gray
-      '#00FFFF', // Pure Cyan
-      '#FF6600', // Orange
-      '#9900FF', // Purple
-      '#0099CC', // Ocean Blue
-      '#00FF99', // Mint
-      '#CC00FF',  // Electric Purple
-      '#CC9900', // Gold
-      '#FF0099', // Hot Pink
-      '#99FF00', // Lime
-      '#0099FF', // Sky Blue
-      '#9900CC', // Deep Purple
-      '#00CC99', // Teal
-      '#CC0099', // Violet
-      '#99CC00' // Olive Green
-    ];
-
-    // Use the dynamic typeBreakdown Map directly
+    // Use the dynamic typeBreakdown Map and sort by value descending (same as getAssetBreakdownEntries)
     if (breakdown.typeBreakdown) {
-      const typeBreakdownEntries = Object.entries(breakdown.typeBreakdown);
+      const typeBreakdownEntries = Object.entries(breakdown.typeBreakdown)
+        .map(([name, value]) => ({name, value}))
+        .filter(entry => entry.value > 0)
+        .sort((a, b) => b.value - a.value); // Sort by value descending to match Asset Breakdown
 
-      typeBreakdownEntries.forEach(([typeName, value], index) => {
-        if (value > 0) { // Only include types with positive values
-          labels.push(typeName);
-          data.push(value);
-        }
+      typeBreakdownEntries.forEach((entry, index) => {
+        labels.push(entry.name);
+        data.push(entry.value);
+        colors.push(this.getColorForIndex(index));
       });
     }
 
@@ -142,7 +125,7 @@ export class DashboardComponent implements OnInit {
       labels: labels,
       datasets: [{
         data: data,
-        backgroundColor: colors.slice(0, labels.length)
+        backgroundColor: colors
       }]
     };
   }
@@ -151,6 +134,26 @@ export class DashboardComponent implements OnInit {
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            boxWidth: 12,
+            font: {
+              size: 11
+            },
+            padding: 8
+          }
+        }
+      }
+    };
+  }
+
+  initializeLiabilityChartOptions(): void {
+    this.liabilityChartOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '65%', // Makes it a donut chart
       plugins: {
         legend: {
           position: 'right',
@@ -230,6 +233,64 @@ export class DashboardComponent implements OnInit {
       .sort((a, b) => b.value - a.value); // Sort by value descending
   }
 
+  // Get color for index to match chart colors
+  getColorForIndex(index: number): string {
+    const colors = [
+      '#FF8C00', // Dark Orange
+      '#0099CC', // Ocean Blue
+      '#99CC00', // Olive Green
+      '#9900CC', // Deep Purple
+      '#00CC99', // Teal
+      '#FF00FF', // Pure Magenta
+      '#808080', // Gray
+      '#00FF00', // Pure Green
+      '#FF0000', // Pure Red
+      '#00FFFF', // Pure Cyan
+      '#FF6600', // Orange
+      '#9900FF', // Purple
+      '#0000FF', // Pure Blue
+      '#00FF99', // Mint
+      '#CC00FF',  // Electric Purple
+      '#CC9900', // Gold
+      '#FF0099', // Hot Pink
+      '#99FF00', // Lime
+      '#0099FF', // Sky Blue
+      '#CC0099' // Violet
+    ];
+    return colors[index % colors.length];
+  }
+
+  // Get top performing assets
+  getTopAssets(count: number = 5): Asset[] {
+    return [...this.assets]
+      .filter(asset => asset.gainLossPercentage !== undefined && asset.gainLossPercentage !== null)
+      .sort((a, b) => {
+        const gainA = a.gainLossPercentage || 0;
+        const gainB = b.gainLossPercentage || 0;
+        return gainB - gainA;
+      })
+      .slice(0, count);
+  }
+
+  // Calculate allocation percentage for visualization
+  calculateAllocationPercentage(value: number, total: number): number {
+    if (total === 0) return 0;
+    return (value / total) * 100;
+  }
+
+  // Get asset allocation with colors for progress bars
+  getAssetAllocationWithColors(): Array<{name: string, value: number, percentage: number, color: string}> {
+    const entries = this.getAssetBreakdownEntries();
+    const total = this.summary?.totalValue || 0;
+
+    return entries.map((entry, index) => ({
+      name: entry.name,
+      value: entry.value,
+      percentage: this.calculateAllocationPercentage(entry.value, total),
+      color: this.getColorForIndex(index)
+    }));
+  }
+
   // Helper method to get liability breakdown entries for display
   getLiabilityBreakdownEntries(): Array<{name: string, value: number}> {
     if (!this.summary?.liabilityBreakdown?.typeBreakdown) {
@@ -242,10 +303,11 @@ export class DashboardComponent implements OnInit {
   }
 
   // Method to prepare liability chart data (if needed for separate liability chart)
-  prepareLiabilityChartData(): any {
-    const liabilityBreakdown = this.summary?.liabilityBreakdown;
+  prepareLiabilityChartDataInternal(summary: PortfolioSummary): void {
+    const liabilityBreakdown = summary?.liabilityBreakdown;
     if (!liabilityBreakdown?.typeBreakdown) {
-      return null;
+      this.liabilityChartData = null;
+      return;
     }
 
     const labels: string[] = [];
@@ -259,13 +321,17 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    return {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: colors.slice(0, labels.length)
-      }]
-    };
+    if (data.length > 0) {
+      this.liabilityChartData = {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors.slice(0, labels.length)
+        }]
+      };
+    } else {
+      this.liabilityChartData = null;
+    }
   }
 
   // Navigation methods

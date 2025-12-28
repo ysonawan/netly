@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>3.5.9</version>
         <relativePath/>
     </parent>
 
     <groupId>com.netly</groupId>
     <artifactId>netly-app</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>Netly App</name>
     <description>Netly Application</description>
 

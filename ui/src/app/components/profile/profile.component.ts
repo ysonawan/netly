@@ -12,17 +12,26 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   profile: UserProfile | null = null;
-  secondaryEmails: string[] = [];
+  newSecondaryEmail: string = '';
   loading = false;
   saving = false;
   sendingReport = false;
   message: { type: 'success' | 'error', text: string } | null = null;
   editingBasic = false;
-  editingPassword = false;
   basicForm = {
     name: '',
     email: ''
   };
+
+  // OTP Modal state
+  showOtpModal = false;
+  otpModalType: 'primary' | 'secondary' | null = null;
+  otpCode = '';
+  otpLoading = false;
+  otpSent = false;
+  otpVerificationInProgress = false;
+  newPrimaryEmail = '';
+  pendingSecondaryEmail: string = '';
 
   constructor(
     private userService: UserService,
@@ -39,11 +48,6 @@ export class ProfileComponent implements OnInit {
     this.userService.getUserProfile().subscribe({
       next: (profile) => {
         this.profile = profile;
-        this.secondaryEmails = profile.secondaryEmails ? [...profile.secondaryEmails] : [];
-        // Start with at least 1 empty slot if there are no emails
-        if (this.secondaryEmails.length === 0) {
-          this.secondaryEmails.push('');
-        }
         this.loading = false;
       },
       error: (error) => {
@@ -54,65 +58,102 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  addEmailSlot(): void {
-    if (this.secondaryEmails.length < 10) {
-      this.secondaryEmails.push('');
-    }
-  }
 
-  removeEmailSlot(index: number): void {
-    if (this.secondaryEmails.length > 1) {
-      this.secondaryEmails.splice(index, 1);
-    } else {
-      // If it's the last one, just clear it instead of removing
-      this.secondaryEmails[index] = '';
-    }
-  }
-
-  saveSecondaryEmails(): void {
-    // Filter out empty emails and validate
-    const validEmails = this.secondaryEmails
-      .map(email => email.trim())
-      .filter(email => email !== '');
-
-    // Check for duplicates
-    const uniqueEmails = [...new Set(validEmails)];
-    if (validEmails.length !== uniqueEmails.length) {
-      this.showMessage('error', 'Duplicate emails are not allowed');
-      return;
-    }
+  addSingleSecondaryEmail(): void {
+    const email = this.newSecondaryEmail.trim();
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    for (const email of validEmails) {
-      if (!emailRegex.test(email)) {
-        this.showMessage('error', `Invalid email format: ${email}`);
-        return;
-      }
+    if (!emailRegex.test(email)) {
+      this.showMessage('error', 'Invalid email format');
+      return;
     }
 
-    // Check if any secondary email is the same as primary
-    if (this.profile && validEmails.some(email => email.toLowerCase() === this.profile!.email.toLowerCase())) {
+    // Check if email is same as primary
+    if (this.profile && email.toLowerCase() === this.profile.email.toLowerCase()) {
       this.showMessage('error', 'Secondary email cannot be the same as primary email');
       return;
     }
 
+    // Check if email already exists in secondary emails
+    if (this.profile && this.profile.secondaryEmails &&
+        this.profile.secondaryEmails.some(e => e.toLowerCase() === email.toLowerCase())) {
+      this.showMessage('error', 'This email is already added');
+      return;
+    }
+
+    // Store pending email and show OTP modal
+    this.pendingSecondaryEmail = email;
+    this.otpModalType = 'secondary';
+    this.showOtpModal = true;
+    this.otpCode = '';
+    this.otpSent = false;
+    this.requestOtpForSecondaryEmails();
+  }
+
+  removeSecondaryEmail(index: number): void {
+    if (!this.profile) return;
+
+    const updatedEmails = this.profile.secondaryEmails.filter((_, i) => i !== index);
+
     this.saving = true;
-    this.userService.updateSecondaryEmails({ secondaryEmails: validEmails }).subscribe({
+    this.userService.updateSecondaryEmailsWithOtp({
+      secondaryEmails: updatedEmails,
+      otp: '' // No OTP needed for removal
+    }).subscribe({
       next: (updatedProfile) => {
         this.profile = updatedProfile;
-        this.secondaryEmails = updatedProfile.secondaryEmails ? [...updatedProfile.secondaryEmails] : [];
-        // Ensure at least one empty slot for adding more
-        if (this.secondaryEmails.length === 0) {
-          this.secondaryEmails.push('');
-        }
         this.saving = false;
-        this.showMessage('success', 'Secondary emails updated successfully');
+        this.showMessage('success', `Email removed successfully`);
       },
       error: (error) => {
-        console.error('Error updating secondary emails:', error);
         this.saving = false;
-        this.showMessage('error', error?.error?.message || 'Failed to update secondary emails');
+        this.showMessage('error', error?.error?.message || 'Failed to remove email');
+      }
+    });
+  }
+
+  requestOtpForSecondaryEmails(): void {
+    this.otpLoading = true;
+    this.userService.requestOtpForSecondaryEmailChange([this.pendingSecondaryEmail]).subscribe({
+      next: (message) => {
+        this.otpLoading = false;
+        this.otpSent = true;
+        this.showMessage('success', message || 'OTP sent to your newly added email');
+      },
+      error: (error) => {
+        this.otpLoading = false;
+        this.showMessage('error', error?.error?.message || 'Failed to send OTP');
+        this.closeOtpModal();
+      }
+    });
+  }
+
+  verifyOtpForSecondaryEmails(): void {
+    if (!this.otpCode || this.otpCode.trim().length === 0) {
+      this.showMessage('error', 'Please enter the OTP');
+      return;
+    }
+
+    // Build the complete secondary emails list with the new email
+    const updatedEmails = this.profile?.secondaryEmails ? [...this.profile.secondaryEmails] : [];
+    updatedEmails.push(this.pendingSecondaryEmail);
+
+    this.otpVerificationInProgress = true;
+    this.userService.updateSecondaryEmailsWithOtp({
+      secondaryEmails: updatedEmails,
+      otp: this.otpCode.trim()
+    }).subscribe({
+      next: (updatedProfile) => {
+        this.profile = updatedProfile;
+        this.otpVerificationInProgress = false;
+        this.closeOtpModal();
+        this.newSecondaryEmail = '';
+        this.showMessage('success', 'Secondary email added successfully');
+      },
+      error: (error) => {
+        this.otpVerificationInProgress = false;
+        this.showMessage('error', error?.error?.message || 'OTP verification failed. Please try again.');
       }
     });
   }
@@ -139,13 +180,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  getFilledEmailsCount(): number {
-    return this.secondaryEmails.filter(email => email.trim() !== '').length;
-  }
-
-  trackByIndex(index: number): number {
-    return index;
-  }
 
   startEditBasic() {
     if (this.profile) {
@@ -156,24 +190,94 @@ export class ProfileComponent implements OnInit {
   }
 
   saveBasicInfo() {
+    // Check if email has changed
+    if (this.basicForm.email !== this.profile?.email) {
+      // Email is changing, need OTP verification
+      this.newPrimaryEmail = this.basicForm.email;
+      this.otpModalType = 'primary';
+      this.showOtpModal = true;
+      this.otpCode = '';
+      this.otpSent = false;
+      this.requestOtpForPrimaryEmail();
+    } else {
+      // Only name is changing, no OTP needed
+      this.updateBasicInfoWithoutEmailChange();
+    }
+  }
+
+  requestOtpForPrimaryEmail(): void {
+    this.otpLoading = true;
+    this.userService.requestOtpForPrimaryEmailChange(this.newPrimaryEmail).subscribe({
+      next: (message) => {
+        this.otpLoading = false;
+        this.otpSent = true;
+        this.showMessage('success', message || 'OTP sent to your new email address');
+      },
+      error: (error) => {
+        this.otpLoading = false;
+        this.showMessage('error', error?.error?.message || 'Failed to send OTP to new email address');
+        this.closeOtpModal();
+      }
+    });
+  }
+
+  verifyOtpForPrimaryEmail(): void {
+    if (!this.otpCode || this.otpCode.trim().length === 0) {
+      this.showMessage('error', 'Please enter the OTP');
+      return;
+    }
+
+    this.otpVerificationInProgress = true;
+    this.userService.updateBasicInfoWithOtp({
+      name: this.basicForm.name,
+      email: this.newPrimaryEmail,
+      otp: this.otpCode.trim()
+    }).subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.editingBasic = false;
+        this.otpVerificationInProgress = false;
+        this.closeOtpModal();
+        this.showMessage('success', 'Primary email updated successfully. Please log in again.');
+        // Logout user after email change
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000);
+      },
+      error: (err) => {
+        this.otpVerificationInProgress = false;
+        this.showMessage('error', err?.error?.message || 'OTP verification failed. Please try again.');
+      }
+    });
+  }
+
+  updateBasicInfoWithoutEmailChange(): void {
     this.saving = true;
-    const oldEmail = this.profile?.email;
-    this.userService.updateBasicInfo(this.basicForm).subscribe({
+    this.userService.updateBasicInfo({
+      name: this.basicForm.name,
+      email: this.profile?.email || ''
+    }).subscribe({
       next: (updated) => {
         this.profile = updated;
         this.editingBasic = false;
         this.saving = false;
         this.showMessage('success', 'Profile updated successfully');
-        //logout user if email changed
-        if (oldEmail && this.basicForm.email !== oldEmail) {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }
       },
       error: (err) => {
         this.saving = false;
         this.showMessage('error', err?.error?.message || 'Failed to update profile');
       }
     });
+  }
+
+  closeOtpModal(): void {
+    this.showOtpModal = false;
+    this.otpModalType = null;
+    this.otpCode = '';
+    this.otpSent = false;
+    this.otpVerificationInProgress = false;
+    this.newPrimaryEmail = '';
+    this.pendingSecondaryEmail = '';
   }
 }

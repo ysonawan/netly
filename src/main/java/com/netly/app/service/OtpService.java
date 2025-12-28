@@ -63,7 +63,7 @@ public class OtpService {
     }
 
     /**
-     * Send OTP via email
+     * Send OTP via email (for login)
      */
     public void sendOtpEmail(String email, String name, String otp) {
         try {
@@ -89,6 +89,64 @@ public class OtpService {
         } catch (Exception e) {
             log.error("Error sending OTP email to: {}", email, e);
             throw new RuntimeException("Failed to send OTP email");
+        }
+    }
+
+    /**
+     * Send OTP for adding secondary email
+     */
+    public void sendSecondaryEmailOtp(String email, String name, String otp) {
+        try {
+            // Prepare Thymeleaf context
+            Context context = new Context();
+            context.setVariable("name", name);
+            context.setVariable("otp", otp);
+
+            // Process the template
+            String htmlContent = templateEngine.process("email/add-secondary-email-otp", context);
+
+            // Create email payload
+            ResendEmailPayload emailPayload = new ResendEmailPayload();
+            emailPayload.setTo(new String[]{email});
+            emailPayload.setSubject("Verify Your Secondary Email - Netly");
+            emailPayload.setHtml(htmlContent);
+
+            // Send email
+            resendEmailService.sendEmail(emailPayload);
+
+            log.info("Secondary email OTP sent to: {}", email);
+        } catch (Exception e) {
+            log.error("Error sending secondary email OTP to: {}", email, e);
+            throw new RuntimeException("Failed to send secondary email OTP");
+        }
+    }
+
+    /**
+     * Send OTP for updating primary email
+     */
+    public void sendPrimaryEmailUpdateOtp(String email, String name, String otp) {
+        try {
+            // Prepare Thymeleaf context
+            Context context = new Context();
+            context.setVariable("name", name);
+            context.setVariable("otp", otp);
+
+            // Process the template
+            String htmlContent = templateEngine.process("email/update-primary-email-otp", context);
+
+            // Create email payload
+            ResendEmailPayload emailPayload = new ResendEmailPayload();
+            emailPayload.setTo(new String[]{email});
+            emailPayload.setSubject("Verify Your New Primary Email - Netly");
+            emailPayload.setHtml(htmlContent);
+
+            // Send email
+            resendEmailService.sendEmail(emailPayload);
+
+            log.info("Primary email update OTP sent to: {}", email);
+        } catch (Exception e) {
+            log.error("Error sending primary email update OTP to: {}", email, e);
+            throw new RuntimeException("Failed to send primary email update OTP");
         }
     }
 

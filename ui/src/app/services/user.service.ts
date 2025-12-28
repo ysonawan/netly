@@ -25,7 +25,25 @@ export class UserService {
   }
 
   sendPortfolioReport(): Observable<string> {
-    return this.http.post(`${this.apiUrl}/user/profile/send-report`, {}, { responseType: 'text' });
+    return this.http.post(`${this.apiUrl}/user/profile/send-report`, {}, { responseType: 'text' as const });
+  }
+
+  requestOtpForPrimaryEmailChange(newEmail: string): Observable<string> {
+    return this.http.post(`${this.apiUrl}/user/profile/request-otp-for-primary-email`,
+      { newEmail }, { responseType: 'text' as const });
+  }
+
+  requestOtpForSecondaryEmailChange(secondaryEmails: string[]): Observable<string> {
+    return this.http.post(`${this.apiUrl}/user/profile/request-otp-for-secondary-emails`,
+      { secondaryEmails }, { responseType: 'text' as const });
+  }
+
+  updateSecondaryEmailsWithOtp(request: { secondaryEmails: string[], otp: string }): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.apiUrl}/user/profile/secondary-emails-with-otp`, request);
+  }
+
+  updateBasicInfoWithOtp(request: { name: string, email?: string, otp?: string }): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.apiUrl}/user/profile/basic-with-otp`, request);
   }
 }
 
