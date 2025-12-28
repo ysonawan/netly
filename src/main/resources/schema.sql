@@ -138,3 +138,62 @@ ALTER TABLE netly_schema.assets
 ALTER TABLE netly_schema.liabilities
     ADD CONSTRAINT fk_liabilities_custom_liability_type
     FOREIGN KEY (custom_liability_type_id) REFERENCES netly_schema.custom_liability_types(id);
+
+-- Create portfolio snapshots table for weekly tracking
+CREATE TABLE IF NOT EXISTS netly_schema.portfolio_snapshots (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    snapshot_date DATE NOT NULL,
+    total_assets NUMERIC(15,2) NOT NULL,
+    total_liabilities NUMERIC(15,2) NOT NULL,
+    net_worth NUMERIC(15,2) NOT NULL,
+    total_gains NUMERIC(15,2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES netly_schema.users(id) ON DELETE CASCADE,
+    UNIQUE (user_id, snapshot_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_portfolio_snapshots_user_id ON netly_schema.portfolio_snapshots(user_id);
+CREATE INDEX IF NOT EXISTS idx_portfolio_snapshots_snapshot_date ON netly_schema.portfolio_snapshots(snapshot_date);
+CREATE INDEX IF NOT EXISTS idx_portfolio_snapshots_user_date ON netly_schema.portfolio_snapshots(user_id, snapshot_date);
+
+-- Create asset snapshots table
+CREATE TABLE IF NOT EXISTS netly_schema.asset_snapshots (
+    id BIGSERIAL PRIMARY KEY,
+    portfolio_snapshot_id BIGINT NOT NULL,
+    asset_id BIGINT,
+    asset_name VARCHAR(255) NOT NULL,
+    asset_type_name VARCHAR(100) NOT NULL,
+    current_value NUMERIC(15,2) NOT NULL,
+    gain_loss NUMERIC(15,2),
+    currency VARCHAR(10),
+    value_in_inr NUMERIC(15,2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (portfolio_snapshot_id) REFERENCES netly_schema.portfolio_snapshots(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_asset_snapshots_portfolio_snapshot_id ON netly_schema.asset_snapshots(portfolio_snapshot_id);
+CREATE INDEX IF NOT EXISTS idx_asset_snapshots_asset_id ON netly_schema.asset_snapshots(asset_id);
+
+-- Create liability snapshots table
+CREATE TABLE IF NOT EXISTS netly_schema.liability_snapshots (
+    id BIGSERIAL PRIMARY KEY,
+    portfolio_snapshot_id BIGINT NOT NULL,
+    liability_id BIGINT,
+    liability_name VARCHAR(255) NOT NULL,
+    liability_type_name VARCHAR(100) NOT NULL,
+    current_balance NUMERIC(15,2) NOT NULL,
+    currency VARCHAR(10),
+    balance_in_inr NUMERIC(15,2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (portfolio_snapshot_id) REFERENCES netly_schema.portfolio_snapshots(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_liability_snapshots_portfolio_snapshot_id ON netly_schema.liability_snapshots(portfolio_snapshot_id);
+CREATE INDEX IF NOT EXISTS idx_liability_snapshots_liability_id ON netly_schema.liability_snapshots(liability_id);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA netly_schema TO netly_app_user;
+
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA netly_schema TO netly_app_user;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA netly_schema GRANT SELECT ON SEQUENCES TO netly_app_user;
