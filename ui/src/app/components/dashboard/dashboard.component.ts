@@ -203,24 +203,6 @@ export class DashboardComponent implements OnInit {
     return `${value.toFixed(2)}%`;
   }
 
-  formatDate(date: string | undefined): string {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString();
-  }
-
-  deleteLiability(liability: Liability): void {
-    if (confirm(`Are you sure you want to delete ${liability.name}?`)) {
-      this.liabilityService.deleteLiability(liability.id!).subscribe({
-        next: () => {
-          this.loadDashboardData();
-        },
-        error: (error) => {
-          console.error('Error deleting liability:', error);
-          alert('Failed to delete liability');
-        }
-      });
-    }
-  }
 
   // Helper method to get breakdown entries for display in templates
   getAssetBreakdownEntries(): Array<{name: string, value: number}> {
@@ -276,19 +258,6 @@ export class DashboardComponent implements OnInit {
   calculateAllocationPercentage(value: number, total: number): number {
     if (total === 0) return 0;
     return (value / total) * 100;
-  }
-
-  // Get asset allocation with colors for progress bars
-  getAssetAllocationWithColors(): Array<{name: string, value: number, percentage: number, color: string}> {
-    const entries = this.getAssetBreakdownEntries();
-    const total = this.summary?.totalValue || 0;
-
-    return entries.map((entry, index) => ({
-      name: entry.name,
-      value: entry.value,
-      percentage: this.calculateAllocationPercentage(entry.value, total),
-      color: this.getColorForIndex(index)
-    }));
   }
 
   // Helper method to get liability breakdown entries for display
