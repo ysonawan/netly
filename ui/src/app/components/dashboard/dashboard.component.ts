@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { AssetService } from '../../services/asset.service';
 import { LiabilityService } from '../../services/liability.service';
@@ -22,10 +22,10 @@ export class DashboardComponent implements OnInit {
   customAssetTypes: CustomAssetType[] = [];
 
   // Chart data
-  chartData: any;
-  chartOptions: any;
-  liabilityChartData: any;
-  liabilityChartOptions: any;
+  chartOptions: any = {};
+  liabilityChartOptions: any = {};
+  hasChartData = false;
+  hasLiabilityChartData = false;
 
   constructor(
     private assetService: AssetService,
@@ -33,13 +33,20 @@ export class DashboardComponent implements OnInit {
     private configurationService: ConfigurationService,
     private router: Router
   ) {
-    this.initializeChartOptions();
-    this.initializeLiabilityChartOptions();
     this.loadUserCurrency();
   }
 
   ngOnInit(): void {
     this.loadCustomAssetTypes();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event?: any): void {
+    // Refresh chart options on resize to adapt to new viewport size
+    if (this.summary) {
+      this.prepareChartData(this.summary);
+      this.prepareLiabilityChartDataInternal(this.summary);
+    }
   }
 
   loadUserCurrency(): void {
@@ -102,12 +109,10 @@ export class DashboardComponent implements OnInit {
   prepareChartData(summary: PortfolioSummary): void {
     const breakdown = summary.breakdown;
 
-    // Create labels and data arrays from the dynamic typeBreakdown Map
-    const labels: string[] = [];
-    const data: number[] = [];
-    const colors: string[] = [];
+    // Create data array from the dynamic typeBreakdown Map
+    const data: Array<{name: string, value: number}> = [];
 
-    // Use the dynamic typeBreakdown Map and sort by value descending (same as getAssetBreakdownEntries)
+    // Use the dynamic typeBreakdown Map and sort by value descending
     if (breakdown.typeBreakdown) {
       const typeBreakdownEntries = Object.entries(breakdown.typeBreakdown)
         .map(([name, value]) => ({name, value}))
@@ -115,57 +120,76 @@ export class DashboardComponent implements OnInit {
         .sort((a, b) => b.value - a.value); // Sort by value descending to match Asset Breakdown
 
       typeBreakdownEntries.forEach((entry, index) => {
-        labels.push(entry.name);
-        data.push(entry.value);
-        colors.push(this.getColorForIndex(index));
+        data.push({
+          name: entry.name,
+          value: entry.value,
+          itemStyle: { color: this.getColorForIndex(index) }
+        } as any);
       });
     }
 
-    this.chartData = {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: colors
-      }]
-    };
-  }
+    this.hasChartData = data.length > 0;
 
-  initializeChartOptions(): void {
+    // Check if mobile viewport
+    const isMobile = window.innerWidth < 640;
+
     this.chartOptions = {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            boxWidth: 12,
-            font: {
-              size: 11
-            },
-            padding: 8
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const formattedValue = this.formatCurrency(params.value);
+          return `${params.seriesName}<br/>${params.name}: ${formattedValue} (${params.percent}%)`;
+        },
+        confine: true
+      },
+      legend: {
+        orient: isMobile ? 'horizontal' : 'vertical',
+        bottom: isMobile ? 0 : undefined,
+        right: isMobile ? undefined : 10,
+        top: isMobile ? undefined : 'center',
+        left: isMobile ? 'center' : undefined,
+        textStyle: {
+          fontSize: isMobile ? 10 : 11
+        },
+        itemWidth: 12,
+        itemHeight: 12,
+        itemGap: isMobile ? 8 : 10,
+        padding: isMobile ? [0, 5] : [5, 5],
+        tooltip: {
+          show: true,
+          formatter: (params: any) => {
+            // For legend tooltip, ECharts passes the data object directly
+            const dataItem = data.find((item: any) => item.name === params.name);
+            if (dataItem) {
+              // Calculate percentage
+              const total = data.reduce((sum: number, item: any) => sum + item.value, 0);
+              const percent = ((dataItem.value / total) * 100).toFixed(1);
+              const formattedValue = this.formatCurrency(dataItem.value);
+              return `Assets<br/>${params.name}: ${formattedValue} (${percent}%)`;
+            }
+            return params.name;
           }
         }
-      }
-    };
-  }
-
-  initializeLiabilityChartOptions(): void {
-    this.liabilityChartOptions = {
-      responsive: true,
-      maintainAspectRatio: true,
-      cutout: '65%', // Makes it a donut chart
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            boxWidth: 12,
-            font: {
-              size: 11
-            },
-            padding: 8
+      },
+      series: [
+        {
+          name: 'Assets',
+          type: 'pie',
+          radius: isMobile ? '50%' : '65%',
+          center: isMobile ? ['50%', '42%'] : ['40%', '50%'],
+          data: data,
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          },
+          label: {
+            show: false
           }
         }
-      }
+      ]
     };
   }
 
@@ -275,31 +299,92 @@ export class DashboardComponent implements OnInit {
   prepareLiabilityChartDataInternal(summary: PortfolioSummary): void {
     const liabilityBreakdown = summary?.liabilityBreakdown;
     if (!liabilityBreakdown?.typeBreakdown) {
-      this.liabilityChartData = null;
+      this.liabilityChartOptions = {};
+      this.hasLiabilityChartData = false;
       return;
     }
 
-    const labels: string[] = [];
-    const data: number[] = [];
+    const data: Array<{name: string, value: number}> = [];
     const colors = ['#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16', '#22C55E', '#10B981'];
+    let colorIndex = 0;
 
     Object.entries(liabilityBreakdown.typeBreakdown).forEach(([typeName, value]) => {
       if (value > 0) {
-        labels.push(typeName);
-        data.push(value);
+        data.push({
+          name: typeName,
+          value: value,
+          itemStyle: { color: colors[colorIndex % colors.length] }
+        } as any);
+        colorIndex++;
       }
     });
 
+    this.hasLiabilityChartData = data.length > 0;
+
     if (data.length > 0) {
-      this.liabilityChartData = {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: colors.slice(0, labels.length)
-        }]
+      // Check if mobile viewport
+      const isMobile = window.innerWidth < 640;
+
+      this.liabilityChartOptions = {
+        tooltip: {
+          trigger: 'item',
+          formatter: (params: any) => {
+            const formattedValue = this.formatCurrency(params.value);
+            return `${params.seriesName}<br/>${params.name}: ${formattedValue} (${params.percent}%)`;
+          },
+          confine: true
+        },
+        legend: {
+          orient: isMobile ? 'horizontal' : 'vertical',
+          bottom: isMobile ? 0 : undefined,
+          right: isMobile ? undefined : 10,
+          top: isMobile ? undefined : 'center',
+          left: isMobile ? 'center' : undefined,
+          textStyle: {
+            fontSize: isMobile ? 10 : 11
+          },
+          itemWidth: 12,
+          itemHeight: 12,
+          itemGap: isMobile ? 8 : 10,
+          padding: isMobile ? [0, 5] : [5, 5],
+          tooltip: {
+            show: true,
+            formatter: (params: any) => {
+              // For legend tooltip, ECharts passes the data object directly
+              const dataItem = data.find((item: any) => item.name === params.name);
+              if (dataItem) {
+                // Calculate percentage
+                const total = data.reduce((sum: number, item: any) => sum + item.value, 0);
+                const percent = ((dataItem.value / total) * 100).toFixed(1);
+                const formattedValue = this.formatCurrency(dataItem.value);
+                return `Liabilities<br/>${params.name}: ${formattedValue} (${percent}%)`;
+              }
+              return params.name;
+            }
+          }
+        },
+        series: [
+          {
+            name: 'Liabilities',
+            type: 'pie',
+            radius: isMobile ? ['30%', '50%'] : ['40%', '65%'], // Donut chart
+            center: isMobile ? ['50%', '42%'] : ['40%', '50%'],
+            data: data,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            label: {
+              show: false
+            }
+          }
+        ]
       };
     } else {
-      this.liabilityChartData = null;
+      this.liabilityChartOptions = {};
     }
   }
 

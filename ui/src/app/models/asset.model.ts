@@ -14,6 +14,7 @@ export interface Asset {
   illiquid?: boolean;
   gainLoss?: number;
   gainLossPercentage?: number;
+  updatedAt?: string;
 }
 
 export interface PortfolioSummary {

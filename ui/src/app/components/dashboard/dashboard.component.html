@@ -157,15 +157,14 @@
               </svg>
             </div>
           </div>
-          <div class="flex items-center justify-center" style="height: 280px;">
-            <canvas
-              *ngIf="chartData"
-              baseChart
-              [data]="chartData"
+          <div class="flex items-center justify-center h-[280px] sm:h-[280px]">
+            <div
+              *ngIf="hasChartData && getAssetBreakdownEntries().length > 0"
+              echarts
               [options]="chartOptions"
-              [type]="'pie'">
-            </canvas>
-            <div *ngIf="!chartData || getAssetBreakdownEntries().length === 0" class="text-center">
+              class="w-full h-full">
+            </div>
+            <div *ngIf="!hasChartData || getAssetBreakdownEntries().length === 0" class="text-center">
               <svg class="w-16 h-16 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
               </svg>

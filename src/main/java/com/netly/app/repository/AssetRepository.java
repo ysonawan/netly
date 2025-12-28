@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface AssetRepository extends JpaRepository<Asset, Long> {
 
-    List<Asset> findByUser(User user);
+    List<Asset> findByUserOrderByUpdatedAtDesc(User user);
     Optional<Asset> findByIdAndUser(Long id, User user);
 
     @Query("SELECT COUNT(a) FROM Asset a WHERE a.user = :user AND a.currency = :currency")

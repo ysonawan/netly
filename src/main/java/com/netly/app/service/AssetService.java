@@ -39,7 +39,7 @@ public class AssetService {
     @Transactional(readOnly = true)
     public List<AssetDTO> getAllAssets() {
         User currentUser = getCurrentUser();
-        return assetRepository.findByUser(currentUser).stream()
+        return assetRepository.findByUserOrderByUpdatedAtDesc(currentUser).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -51,7 +51,7 @@ public class AssetService {
     public List<AssetDTO> getAllAssetsForUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return assetRepository.findByUser(user).stream()
+        return assetRepository.findByUserOrderByUpdatedAtDesc(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -129,7 +129,7 @@ public class AssetService {
     public PortfolioSummaryDTO getPortfolioSummaryForUser(Long userId) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<Asset> assets = assetRepository.findByUser(currentUser);
+        List<Asset> assets = assetRepository.findByUserOrderByUpdatedAtDesc(currentUser);
 
         // Convert all asset values to INR before calculations
         BigDecimal totalValue = assets.stream()
@@ -169,7 +169,7 @@ public class AssetService {
 
         PortfolioSummaryDTO.AssetTypeBreakdown breakdown = calculateBreakdown(assets, currentUser);
 
-        List<Liability> liabilities = liabilityRepository.findByUser(currentUser);
+        List<Liability> liabilities = liabilityRepository.findByUserOrderByUpdatedAtDesc(currentUser);
         BigDecimal totalLiabilities = liabilities.stream()
                 .map(liability -> currencyConversionService.convertToINR(
                         liability.getCurrentBalance(),
@@ -247,6 +247,7 @@ public class AssetService {
         dto.setIlliquid(asset.getIlliquid());
         dto.setGainLoss(asset.getGainLoss());
         dto.setGainLossPercentage(asset.getGainLossPercentage());
+        dto.setUpdatedAt(asset.getUpdatedAt());
         return dto;
     }
 

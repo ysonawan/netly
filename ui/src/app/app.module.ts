@@ -3,7 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideCharts, withDefaultRegisterables, BaseChartDirective } from 'ng2-charts';
+import { provideZoneChangeDetection } from '@angular/core';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -41,9 +42,12 @@ import {ProfileComponent} from "./components/profile/profile.component";
         AppRoutingModule,
         FormsModule,
         ReactiveFormsModule,
-        BaseChartDirective
+        NgxEchartsModule.forRoot({
+            echarts: () => import('echarts')
+        })
     ],
     providers: [
+        provideZoneChangeDetection({ eventCoalescing: false }),
         AssetService,
         LiabilityService,
         AuthService,
@@ -52,8 +56,7 @@ import {ProfileComponent} from "./components/profile/profile.component";
             useClass: AuthInterceptor,
             multi: true
         },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideCharts(withDefaultRegisterables())
+        provideHttpClient(withInterceptorsFromDi())
     ]
 })
 export class AppModule { }

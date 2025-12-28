@@ -15,4 +15,5 @@ export interface Liability {
   currency?: string;
   paidAmount?: number;
   repaymentPercentage?: number;
+  updatedAt?: string;
 }

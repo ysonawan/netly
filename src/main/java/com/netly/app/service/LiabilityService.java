@@ -41,7 +41,7 @@ public class LiabilityService {
     public List<LiabilityDTO> getAllLiabilitiesForUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return liabilityRepository.findByUser(user).stream()
+        return liabilityRepository.findByUserOrderByUpdatedAtDesc(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -125,6 +125,7 @@ public class LiabilityService {
         dto.setCurrency(liability.getCurrency());
         dto.setPaidAmount(liability.getPaidAmount());
         dto.setRepaymentPercentage(liability.getRepaymentPercentage());
+        dto.setUpdatedAt(liability.getUpdatedAt());
         return dto;
     }
 

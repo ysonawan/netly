@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +26,5 @@ public class AssetDTO {
     private Boolean illiquid;
     private BigDecimal gainLoss;
     private BigDecimal gainLossPercentage;
+    private LocalDateTime updatedAt;
 }
