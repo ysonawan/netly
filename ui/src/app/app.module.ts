@@ -21,6 +21,8 @@ import { LiabilityService } from './services/liability.service';
 import { AuthService } from './services/auth.service';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import {ProfileComponent} from "./components/profile/profile.component";
+import {BudgetComponent} from "./components/budget/budget.component";
+import {BudgetService} from "./services/budget.service";
 
 @NgModule({
     declarations: [
@@ -33,7 +35,8 @@ import {ProfileComponent} from "./components/profile/profile.component";
         LoginComponent,
         SignupComponent,
         SettingsComponent,
-        ProfileComponent
+        ProfileComponent,
+        BudgetComponent
     ],
     bootstrap: [AppComponent],
     imports: [
@@ -51,6 +54,7 @@ import {ProfileComponent} from "./components/profile/profile.component";
         AssetService,
         LiabilityService,
         AuthService,
+        BudgetService,
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,

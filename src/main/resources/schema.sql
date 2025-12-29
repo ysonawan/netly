@@ -192,6 +192,25 @@ CREATE TABLE IF NOT EXISTS netly_schema.liability_snapshots (
 CREATE INDEX IF NOT EXISTS idx_liability_snapshots_portfolio_snapshot_id ON netly_schema.liability_snapshots(portfolio_snapshot_id);
 CREATE INDEX IF NOT EXISTS idx_liability_snapshots_liability_id ON netly_schema.liability_snapshots(liability_id);
 
+-- Create budget_items table for personal budget management
+CREATE TABLE IF NOT EXISTS netly_schema.budget_items (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    item_type VARCHAR(20) NOT NULL, -- INCOME or EXPENSE
+    item_name VARCHAR(255) NOT NULL,
+    amount NUMERIC(15,2) NOT NULL,
+    is_investment BOOLEAN NOT NULL DEFAULT false,
+    description TEXT,
+    display_order INTEGER,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES netly_schema.users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_budget_items_user_id ON netly_schema.budget_items(user_id);
+CREATE INDEX IF NOT EXISTS idx_budget_items_item_type ON netly_schema.budget_items(item_type);
+CREATE INDEX IF NOT EXISTS idx_budget_items_user_type ON netly_schema.budget_items(user_id, item_type);
+
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA netly_schema TO netly_app_user;
 
 GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA netly_schema TO netly_app_user;

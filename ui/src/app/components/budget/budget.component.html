@@ -1,0 +1,569 @@
+<div class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+  <div class="p-4 md:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto space-y-6">
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-3xl md:text-3xl font-bold text-gray-700 mb-2">Personal Budget</h1>
+          <p class="text-gray-600">Plan and track your monthly income and expenses</p>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Total Income Card -->
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
+          <div class="flex flex-col">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Income</p>
+            <p class="text-xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalIncome) }}</p>
+          </div>
+        </div>
+
+        <!-- Total Expenses Card -->
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
+          <div class="flex flex-col">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Expenses</p>
+            <p class="text-xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalExpenses) }}</p>
+          </div>
+        </div>
+
+        <!-- Total Investments Card -->
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
+          <div class="flex flex-col">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Investments</p>
+            <p class="text-xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalInvestments) }}</p>
+            <p class="text-xs text-blue-600 mt-1">{{ summary.investmentPercentage.toFixed(1) }}% of income</p>
+          </div>
+        </div>
+
+        <!-- Non-Investment Expenses Card -->
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-orange-500">
+          <div class="flex flex-col">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Living Expenses</p>
+            <p class="text-xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalNonInvestmentExpenses) }}</p>
+            <p class="text-xs text-orange-600 mt-1">{{ summary.nonInvestmentExpensePercentage.toFixed(1) }}% of income</p>
+          </div>
+        </div>
+
+        <!-- Surplus Card -->
+        <div class="bg-white rounded-lg shadow-md p-4 border-l-4" [ngClass]="summary.totalSurplus >= 0 ? 'border-emerald-500' : 'border-red-500'">
+          <div class="flex flex-col">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Surplus/Deficit</p>
+            <p class="text-xl font-bold mt-1" [ngClass]="summary.totalSurplus >= 0 ? 'text-emerald-600' : 'text-red-600'">
+              {{ formatCurrency(summary.totalSurplus) }}
+            </p>
+            <p class="text-xs mt-1" [ngClass]="summary.totalSurplus >= 0 ? 'text-emerald-600' : 'text-red-600'">
+                {{ summary.savingsRate.toFixed(1) }}%  of income
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex items-center justify-center py-20">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <p class="mt-4 text-lg text-gray-600 font-medium">Loading budget...</p>
+        </div>
+      </div>
+
+      <!-- Budget Grid: Income & Expenses -->
+      <div *ngIf="!loading" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Monthly Income Section -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-700 flex items-center gap-2">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Monthly Income
+            </h2>
+            <button
+              *ngIf="!addingIncome"
+              (click)="startAddingIncome()"
+              class="px-3 py-1.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <!-- Existing Income Items -->
+            <div *ngFor="let item of incomeItems" class="border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+              <div *ngIf="!isEditingIncome(item)" class="flex items-center justify-between">
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-700">{{ item.itemName }}</p>
+                  <p class="text-sm text-gray-500" *ngIf="item.description">{{ item.description }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <p class="font-semibold text-green-600">{{ formatCurrency(item.amount) }}</p>
+                  <div class="flex gap-2">
+                    <button
+                      (click)="startEditingIncome(item)"
+                      class="text-blue-600 hover:text-blue-800 transition-colors">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      (click)="deleteIncome(item)"
+                      class="text-red-600 hover:text-red-800 transition-colors">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Mode -->
+              <div *ngIf="isEditingIncome(item)" class="space-y-2">
+                <input
+                  type="text"
+                  [(ngModel)]="item.itemName"
+                  placeholder="Income source"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <input
+                  type="number"
+                  [(ngModel)]="item.amount"
+                  placeholder="Amount"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <input
+                  type="text"
+                  [(ngModel)]="item.description"
+                  placeholder="Description (optional)"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <div class="flex gap-2">
+                  <button
+                    (click)="saveIncome(item)"
+                    class="flex-1 px-3 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                    Save
+                  </button>
+                  <button
+                    (click)="cancelEditingIncome(item)"
+                    class="flex-1 px-3 py-2 bg-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-400 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add New Income Form -->
+            <div *ngIf="addingIncome" class="border-2 border-green-300 rounded-lg p-3 bg-green-50">
+              <div class="space-y-2">
+                <input
+                  type="text"
+                  [(ngModel)]="newIncomeItem.itemName"
+                  placeholder="Income source (e.g., Salary, Freelance)"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <input
+                  type="number"
+                  [(ngModel)]="newIncomeItem.amount"
+                  placeholder="Amount"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <input
+                  type="text"
+                  [(ngModel)]="newIncomeItem.description"
+                  placeholder="Description (optional)"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <div class="flex gap-2">
+                  <button
+                    (click)="saveNewIncome()"
+                    class="flex-1 px-3 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                    Save
+                  </button>
+                  <button
+                    (click)="cancelAddingIncome()"
+                    class="flex-1 px-3 py-2 bg-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-400 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="incomeItems.length === 0 && !addingIncome" class="text-center py-8">
+              <p class="text-gray-500">No income sources added yet</p>
+              <button
+                (click)="startAddingIncome()"
+                class="mt-3 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                Add Your First Income Source
+              </button>
+            </div>
+          </div>
+
+          <!-- Income Total -->
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+              <p class=" font-semibold text-gray-700">Total Income</p>
+              <p class=" font-semibold text-green-600">{{ formatCurrency(summary.totalIncome) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Expenses Section -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-700 flex items-center gap-2">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+              </svg>
+              Monthly Expenses
+            </h2>
+            <button
+              *ngIf="!addingExpense"
+              (click)="startAddingExpense()"
+              class="px-3 py-1.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <!-- Investment Expenses Section -->
+            <div *ngIf="getInvestmentExpenses().length > 0" class="mb-4">
+              <h3 class="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                Investments (SIP, EPF, NPS, etc.)
+              </h3>
+              <div class="space-y-2">
+                <div *ngFor="let item of getInvestmentExpenses()" class="border border-blue-200 rounded-lg p-3 bg-blue-50 hover:border-blue-300 transition-colors">
+                  <div *ngIf="!isEditingExpense(item)" class="flex items-center justify-between">
+                    <div class="flex-1">
+                      <p class="font-semibold text-gray-700">{{ item.itemName }}</p>
+                      <p class="text-sm text-gray-500" *ngIf="item.description">{{ item.description }}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <p class="font-semibold text-blue-600 ">{{ formatCurrency(item.amount) }}</p>
+                      <div class="flex gap-2">
+                        <button
+                          (click)="startEditingExpense(item)"
+                          class="text-blue-600 hover:text-blue-800 transition-colors">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        <button
+                          (click)="deleteExpense(item)"
+                          class="text-red-600 hover:text-red-800 transition-colors">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingExpense(item)" class="space-y-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="item.itemName"
+                      placeholder="Expense name"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <input
+                      type="number"
+                      [(ngModel)]="item.amount"
+                      placeholder="Amount"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <input
+                      type="text"
+                      [(ngModel)]="item.description"
+                      placeholder="Description (optional)"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <label class="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="item.isInvestment"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                      <span class="text-gray-700">This is an investment</span>
+                    </label>
+                    <div class="flex gap-2">
+                      <button
+                        (click)="saveExpense(item)"
+                        class="flex-1 px-3 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                        Save
+                      </button>
+                      <button
+                        (click)="cancelEditingExpense(item)"
+                        class="flex-1 px-3 py-2 bg-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-400 transition-colors">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Non-Investment Expenses Section -->
+            <div *ngIf="getNonInvestmentExpenses().length > 0" class="mb-4">
+              <h3 class="text-sm font-semibold text-orange-700 mb-2 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                Living Expenses (Rent, Grocery, etc.)
+              </h3>
+              <div class="space-y-2">
+                <div *ngFor="let item of getNonInvestmentExpenses()" class="border border-orange-200 rounded-lg p-3 bg-orange-50 hover:border-orange-300 transition-colors">
+                  <div *ngIf="!isEditingExpense(item)" class="flex items-center justify-between">
+                    <div class="flex-1">
+                      <p class="font-semibold text-gray-700">{{ item.itemName }}</p>
+                      <p class="text-sm text-gray-500" *ngIf="item.description">{{ item.description }}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <p class="font-semibold text-orange-600 ">{{ formatCurrency(item.amount) }}</p>
+                      <div class="flex gap-2">
+                        <button
+                          (click)="startEditingExpense(item)"
+                          class="text-blue-600 hover:text-blue-800 transition-colors">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        <button
+                          (click)="deleteExpense(item)"
+                          class="text-red-600 hover:text-red-800 transition-colors">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingExpense(item)" class="space-y-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="item.itemName"
+                      placeholder="Expense name"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <input
+                      type="number"
+                      [(ngModel)]="item.amount"
+                      placeholder="Amount"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <input
+                      type="text"
+                      [(ngModel)]="item.description"
+                      placeholder="Description (optional)"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <label class="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="item.isInvestment"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                      <span class="text-gray-700">This is an investment</span>
+                    </label>
+                    <div class="flex gap-2">
+                      <button
+                        (click)="saveExpense(item)"
+                        class="flex-1 px-3 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                        Save
+                      </button>
+                      <button
+                        (click)="cancelEditingExpense(item)"
+                        class="flex-1 px-3 py-2 bg-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-400 transition-colors">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add New Expense Form -->
+            <div *ngIf="addingExpense" class="border-2 border-red-300 rounded-lg p-3 bg-red-50">
+              <div class="space-y-2">
+                <input
+                  type="text"
+                  [(ngModel)]="newExpenseItem.itemName"
+                  placeholder="Expense name (e.g., Rent, Grocery, SIP)"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                <input
+                  type="number"
+                  [(ngModel)]="newExpenseItem.amount"
+                  placeholder="Amount"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                <input
+                  type="text"
+                  [(ngModel)]="newExpenseItem.description"
+                  placeholder="Description (optional)"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                <label class="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="newExpenseItem.isInvestment"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="text-gray-700">This is an investment (SIP, EPF, NPS, etc.)</span>
+                </label>
+                <div class="flex gap-2">
+                  <button
+                    (click)="saveNewExpense()"
+                    class="flex-1 px-3 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                    Save
+                  </button>
+                  <button
+                    (click)="cancelAddingExpense()"
+                    class="flex-1 px-3 py-2 bg-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-400 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="expenseItems.length === 0 && !addingExpense" class="text-center py-8">
+              <p class="text-gray-500">No expenses added yet</p>
+              <button
+                (click)="startAddingExpense()"
+                class="mt-3 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                Add Your First Expense
+              </button>
+            </div>
+          </div>
+
+          <!-- Expense Total -->
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-sm">
+                <p class="text-gray-600">Investments</p>
+                <p class="font-semibold text-blue-600">{{ formatCurrency(summary.totalInvestments) }}</p>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <p class="text-gray-600">Living Expenses</p>
+                <p class="font-semibold text-orange-600">{{ formatCurrency(summary.totalNonInvestmentExpenses) }}</p>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t">
+                <p class=" font-semibold text-gray-700">Total Expenses</p>
+                <p class=" font-semibold text-red-600">{{ formatCurrency(summary.totalExpenses) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div *ngIf="!loading && hasChartData" class="space-y-6 mt-6">
+        <div class="mb-4">
+          <h2 class="text-2xl font-bold text-gray-700">Budget Analytics</h2>
+          <p class="text-gray-600">Visualize your budget with detailed charts</p>
+        </div>
+
+        <!-- First Row: Income vs Expenses and Savings Gauge -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Income vs Expenses Chart -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-700">Income vs Expenses</h3>
+                <p class="text-sm text-gray-500">Monthly comparison</p>
+              </div>
+              <div class="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="h-[300px]">
+              <div echarts [options]="incomeVsExpensesChartOptions" class="w-full h-full"></div>
+            </div>
+          </div>
+
+          <!-- Savings Rate Gauge -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-700">Savings Rate</h3>
+                <p class="text-sm text-gray-500">Your financial health indicator</p>
+              </div>
+              <div class="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="h-[300px]">
+              <div echarts [options]="savingsGaugeChartOptions" class="w-full h-full"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Row: Expense Breakdown and Income Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Expense Breakdown Pie Chart -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-700">Expense Distribution</h3>
+                <p class="text-sm text-gray-500">Investments vs Living Expenses</p>
+              </div>
+              <div class="p-2 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg">
+                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="h-[320px]">
+              <div *ngIf="summary.totalExpenses > 0" echarts [options]="expenseBreakdownChartOptions" class="w-full h-full"></div>
+              <div *ngIf="summary.totalExpenses === 0" class="flex items-center justify-center h-full">
+                <p class="text-gray-500 text-sm">No expense data available</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Income Breakdown Pie Chart -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-700">Income Sources</h3>
+                <p class="text-sm text-gray-500">Distribution by income type</p>
+              </div>
+              <div class="p-2 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="h-[320px]">
+              <div *ngIf="incomeItems.length > 0" echarts [options]="incomeBreakdownChartOptions" class="w-full h-full"></div>
+              <div *ngIf="incomeItems.length === 0" class="flex items-center justify-center h-full">
+                <p class="text-gray-500 text-sm">No income data available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Third Row: Top Expenses Bar Chart (Full Width) -->
+        <div *ngIf="expenseItems.length > 0" class="bg-white rounded-xl shadow-md p-6">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-700">Top Expenses</h3>
+              <p class="text-sm text-gray-500">Your highest spending categories</p>
+            </div>
+            <div class="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="h-[400px]">
+            <div echarts [options]="topExpensesChartOptions" class="w-full h-full"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+

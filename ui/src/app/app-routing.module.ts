@@ -10,6 +10,7 @@ import { SignupComponent } from './components/signup/signup.component';
 import { AuthGuard } from './guards/auth.guard';
 import {SettingsComponent} from "./components/settings/settings.component";
 import {ProfileComponent} from "./components/profile/profile.component";
+import {BudgetComponent} from "./components/budget/budget.component";
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -22,6 +23,7 @@ const routes: Routes = [
   { path: 'liabilities', component: LiabilityListComponent, canActivate: [AuthGuard] },
   { path: 'liabilities/new', component: LiabilityFormComponent, canActivate: [AuthGuard] },
   { path: 'liabilities/edit/:id', component: LiabilityFormComponent, canActivate: [AuthGuard] },
+  { path: 'budget', component: BudgetComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }
 ];
