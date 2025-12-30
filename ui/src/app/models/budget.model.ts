@@ -18,6 +18,6 @@ export interface BudgetSummary {
   totalSurplus: number;
   investmentPercentage: number;
   nonInvestmentExpensePercentage: number;
-  savingsRate: number;
+  surplusOrDeficitRate: number;
 }
 

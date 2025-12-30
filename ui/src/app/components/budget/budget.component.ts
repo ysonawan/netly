@@ -20,7 +20,7 @@ export class BudgetComponent implements OnInit {
     totalSurplus: 0,
     investmentPercentage: 0,
     nonInvestmentExpensePercentage: 0,
-    savingsRate: 0
+    surplusOrDeficitRate: 0
   };
   loading = true;
 

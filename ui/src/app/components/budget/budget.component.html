@@ -54,7 +54,7 @@
               {{ formatCurrency(summary.totalSurplus) }}
             </p>
             <p class="text-xs mt-1" [ngClass]="summary.totalSurplus >= 0 ? 'text-emerald-600' : 'text-red-600'">
-                {{ summary.savingsRate.toFixed(1) }}%  of income
+                {{ summary.surplusOrDeficitRate.toFixed(1) }}%  of income
             </p>
           </div>
         </div>
