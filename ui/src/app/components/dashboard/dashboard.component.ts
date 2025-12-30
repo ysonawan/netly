@@ -231,16 +231,21 @@ export class DashboardComponent implements OnInit {
     try {
       return new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: currencyCode
+        currency: currencyCode,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       }).format(value);
     } catch (error) {
       // Fallback if currency code is invalid
       return new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: 'INR'
+        currency: 'INR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       }).format(value);
     }
   }
+
 
   formatZero(currency?: string): string {
     const currencyCode = currency || this.userCurrency || 'INR';
