@@ -20,7 +20,7 @@ public class ScheduledReportService {
     /**
      * Sends portfolio reports to all users on the scheduled cron expression.
      * */
-    @Scheduled(cron = "${report.cron.expression}", zone = "UTC")
+    @Scheduled(cron = "${portfolio.report.cron.expression}", zone = "UTC")
     public void sendPortfolioReportsToAllUsers() {
         log.info("Starting scheduled portfolio report generation for all users...");
 
