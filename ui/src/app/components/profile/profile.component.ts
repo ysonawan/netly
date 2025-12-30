@@ -3,6 +3,7 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { UserProfile } from '../../models/user.model';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-profile',
@@ -17,7 +18,6 @@ export class ProfileComponent implements OnInit {
   saving = false;
   sendingReport = false;
   sendingBudgetReport = false;
-  message: { type: 'success' | 'error', text: string } | null = null;
   editingBasic = false;
   basicForm = {
     name: '',
@@ -37,7 +37,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -160,16 +161,17 @@ export class ProfileComponent implements OnInit {
   }
 
   showMessage(type: 'success' | 'error', text: string): void {
-    this.message = { type, text };
-    setTimeout(() => {
-      this.message = null;
-    }, 5000);
+    if (type === 'success') {
+      this.toastr.success(text);
+    } else {
+      this.toastr.error(text);
+    }
   }
 
   sendReport(): void {
     this.sendingReport = true;
     this.userService.sendPortfolioReport().subscribe({
-      next: (response) => {
+      next: () => {
         this.sendingReport = false;
         this.showMessage('success', 'Portfolio report has been queued and will be sent to all your email addresses shortly.');
       },
@@ -184,7 +186,7 @@ export class ProfileComponent implements OnInit {
   sendBudgetReport(): void {
     this.sendingBudgetReport = true;
     this.userService.sendBudgetReport().subscribe({
-      next: (response) => {
+      next: () => {
         this.sendingBudgetReport = false;
         this.showMessage('success', 'Budget report has been queued and will be sent to all your email addresses shortly.');
       },

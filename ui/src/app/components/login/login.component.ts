@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-login',
@@ -13,19 +14,18 @@ export class LoginComponent {
   loginForm: FormGroup;
   otpForm: FormGroup;
   loading = false;
-  errorMessage = '';
   sessionExpiredMessage = '';
   returnUrl: string;
   loginMode: 'password' | 'otp' = 'password';
   otpSent = false;
   otpSending = false;
-  successMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastr: ToastrService
   ) {
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
@@ -59,8 +59,6 @@ export class LoginComponent {
 
   switchLoginMode(mode: 'password' | 'otp'): void {
     this.loginMode = mode;
-    this.errorMessage = '';
-    this.successMessage = '';
     this.sessionExpiredMessage = '';
     this.otpSent = false;
 
@@ -75,7 +73,6 @@ export class LoginComponent {
     }
 
     this.loading = true;
-    this.errorMessage = '';
     this.sessionExpiredMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
@@ -83,7 +80,7 @@ export class LoginComponent {
         this.router.navigate([this.returnUrl]);
       },
       error: () => {
-        this.errorMessage = 'Invalid email or password';
+        this.toastr.error('Invalid email or password');
         this.loading = false;
       }
     });
@@ -97,17 +94,15 @@ export class LoginComponent {
     }
 
     this.otpSending = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     this.authService.requestOtp(email).subscribe({
       next: () => {
         this.otpSent = true;
         this.otpSending = false;
-        this.successMessage = 'OTP sent to your email. Please check your inbox.';
+        this.toastr.success('OTP sent to your email. Please check your inbox.');
       },
       error: () => {
-        this.errorMessage = 'Failed to send OTP. Please check your email and try again.';
+        this.toastr.error('Failed to send OTP. Please check your email and try again.');
         this.otpSending = false;
       }
     });
@@ -122,15 +117,13 @@ export class LoginComponent {
     }
 
     this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     this.authService.verifyOtp(this.otpForm.value).subscribe({
       next: () => {
         this.router.navigate([this.returnUrl]);
       },
       error: () => {
-        this.errorMessage = 'Invalid or expired OTP. Please try again.';
+        this.toastr.error('Invalid or expired OTP. Please try again.');
         this.loading = false;
       }
     });

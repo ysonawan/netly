@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ConfigurationService } from '../../services/configuration.service';
 import { CurrencyRate, CustomAssetType, CustomLiabilityType } from '../../models/configuration.model';
 import Swal from 'sweetalert2';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-settings',
@@ -29,10 +30,11 @@ export class SettingsComponent implements OnInit {
   showAddCustomLiabilityType: boolean = false;
 
   loading: boolean = false;
-  errorMessage: string = '';
-  successMessage: string = '';
 
-  constructor(private configService: ConfigurationService) {}
+  constructor(
+    private configService: ConfigurationService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.loadAllConfigurations();
@@ -302,14 +304,10 @@ export class SettingsComponent implements OnInit {
   }
 
   showError(message: string): void {
-    this.errorMessage = message;
-    this.successMessage = '';
-    setTimeout(() => this.errorMessage = '', 5000);
+    this.toastr.error(message);
   }
 
   showSuccess(message: string): void {
-    this.successMessage = message;
-    this.errorMessage = '';
-    setTimeout(() => this.successMessage = '', 3000);
+    this.toastr.success(message);
   }
 }

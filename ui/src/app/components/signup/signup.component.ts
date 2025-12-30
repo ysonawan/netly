@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-signup',
@@ -12,12 +13,12 @@ import { AuthService } from '../../services/auth.service';
 export class SignupComponent {
   signupForm: FormGroup;
   loading = false;
-  errorMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
@@ -54,7 +55,6 @@ export class SignupComponent {
     }
 
     this.loading = true;
-    this.errorMessage = '';
 
     const { name, email, password } = this.signupForm.value;
 
@@ -62,8 +62,8 @@ export class SignupComponent {
       next: () => {
         this.router.navigate(['/dashboard']);
       },
-      error: (error) => {
-        this.errorMessage = 'Email already exists or signup failed. Please try again.';
+      error: () => {
+        this.toastr.error('Email already exists or signup failed. Please try again.');
         this.loading = false;
       }
     });
