@@ -16,6 +16,7 @@ export class ProfileComponent implements OnInit {
   loading = false;
   saving = false;
   sendingReport = false;
+  sendingBudgetReport = false;
   message: { type: 'success' | 'error', text: string } | null = null;
   editingBasic = false;
   basicForm = {
@@ -176,6 +177,21 @@ export class ProfileComponent implements OnInit {
         console.error('Error sending report:', error);
         this.sendingReport = false;
         this.showMessage('error', error?.error?.message || 'Failed to send portfolio report. Please try again.');
+      }
+    });
+  }
+
+  sendBudgetReport(): void {
+    this.sendingBudgetReport = true;
+    this.userService.sendBudgetReport().subscribe({
+      next: (response) => {
+        this.sendingBudgetReport = false;
+        this.showMessage('success', 'Budget report has been queued and will be sent to all your email addresses shortly.');
+      },
+      error: (error) => {
+        console.error('Error sending budget report:', error);
+        this.sendingBudgetReport = false;
+        this.showMessage('error', error?.error?.message || 'Failed to send budget report. Please try again.');
       }
     });
   }

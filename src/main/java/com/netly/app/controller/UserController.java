@@ -123,13 +123,23 @@ public class UserController {
     }
 
 
-    @PostMapping("/profile/send-report")
+    @PostMapping("/profile/send-portfolio-report")
     public ResponseEntity<String> sendPortfolioReport(Authentication authentication) {
         try {
             reportingService.sendReport();
             return ResponseEntity.ok("Portfolio report queued successfully. It will be sent to all your email addresses.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to send portfolio report");
+        }
+    }
+
+    @PostMapping("/profile/send-budget-report")
+    public ResponseEntity<String> sendBudgetReport(Authentication authentication) {
+        try {
+            reportingService.sendBudgetReport();
+            return ResponseEntity.ok("Budget report queued successfully. It will be sent to all your email addresses.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to send budget report");
         }
     }
 }

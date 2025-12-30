@@ -154,14 +154,14 @@ public class BudgetService {
                 totalNonInvestmentExpenses.divide(totalIncome, 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100))
             );
-            summary.setSavingsRate(
+            summary.setSurplusOrDeficitRate(
                 totalSurplus.divide(totalIncome, 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100))
             );
         } else {
             summary.setInvestmentPercentage(BigDecimal.ZERO);
             summary.setNonInvestmentExpensePercentage(BigDecimal.ZERO);
-            summary.setSavingsRate(BigDecimal.ZERO);
+            summary.setSurplusOrDeficitRate(BigDecimal.ZERO);
         }
 
         return summary;

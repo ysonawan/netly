@@ -16,6 +16,6 @@ public class BudgetSummaryDTO {
     private BigDecimal totalSurplus;
     private BigDecimal investmentPercentage;
     private BigDecimal nonInvestmentExpensePercentage;
-    private BigDecimal savingsRate;
+    private BigDecimal surplusOrDeficitRate;
 }
 

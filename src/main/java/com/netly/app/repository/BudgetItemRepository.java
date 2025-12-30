@@ -10,5 +10,7 @@ import java.util.List;
 public interface BudgetItemRepository extends JpaRepository<BudgetItem, Long> {
     List<BudgetItem> findByUserOrderByDisplayOrderAsc(User user);
     List<BudgetItem> findByUserAndItemTypeOrderByDisplayOrderAsc(User user, BudgetItem.BudgetItemType itemType);
+    List<BudgetItem> findByUserIdOrderByDisplayOrderAsc(Long userId);
+    List<BudgetItem> findByUserIdAndItemTypeOrderByDisplayOrderAsc(Long userId, BudgetItem.BudgetItemType itemType);
 }
 

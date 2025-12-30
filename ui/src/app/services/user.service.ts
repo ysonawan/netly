@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserProfile, UpdateSecondaryEmailsRequest } from '../models/user.model';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +25,11 @@ export class UserService {
   }
 
   sendPortfolioReport(): Observable<string> {
-    return this.http.post(`${this.apiUrl}/user/profile/send-report`, {}, { responseType: 'text' as const });
+    return this.http.post(`${this.apiUrl}/user/profile/send-portfolio-report`, {}, { responseType: 'text' as const });
+  }
+
+  sendBudgetReport(): Observable<string> {
+    return this.http.post(`${this.apiUrl}/user/profile/send-budget-report`, {}, { responseType: 'text' as const });
   }
 
   requestOtpForPrimaryEmailChange(newEmail: string): Observable<string> {
