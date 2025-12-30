@@ -80,7 +80,7 @@ export class LoginComponent {
         this.router.navigate([this.returnUrl]);
       },
       error: () => {
-        this.toastr.error('Invalid email or password');
+        this.toastr.error('Invalid email or password', 'Login Failed');
         this.loading = false;
       }
     });
@@ -99,10 +99,10 @@ export class LoginComponent {
       next: () => {
         this.otpSent = true;
         this.otpSending = false;
-        this.toastr.success('OTP sent to your email. Please check your inbox.');
+        this.toastr.success('OTP sent to your email. Please check your inbox.', 'Success');
       },
       error: () => {
-        this.toastr.error('Failed to send OTP. Please check your email and try again.');
+        this.toastr.error('Failed to send OTP. Please check your email and try again.', 'Error');
         this.otpSending = false;
       }
     });
@@ -123,7 +123,7 @@ export class LoginComponent {
         this.router.navigate([this.returnUrl]);
       },
       error: () => {
-        this.toastr.error('Invalid or expired OTP. Please try again.');
+        this.toastr.error('Invalid or expired OTP. Please try again.', 'Verification Failed');
         this.loading = false;
       }
     });

@@ -63,7 +63,7 @@ export class SignupComponent {
         this.router.navigate(['/dashboard']);
       },
       error: () => {
-        this.toastr.error('Email already exists or signup failed. Please try again.');
+        this.toastr.error('Email already exists or signup failed. Please try again.', 'Signup Failed');
         this.loading = false;
       }
     });
