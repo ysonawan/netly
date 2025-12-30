@@ -41,6 +41,16 @@
                 }
               ],
               "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                },
+                "fonts": {
+                  "inline": true
+                }
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.development.ts",
