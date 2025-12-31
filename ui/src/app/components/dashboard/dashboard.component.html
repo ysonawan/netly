@@ -29,8 +29,8 @@
               <div class="flex items-center justify-between ">
                   <div class="absolute bottom-0 right-0 w-24 h-24 bg-blue-300 rounded-full -mr-12 -mb-12 opacity-20"></div>
                   <div>
-                      <p class="text-xs font-medium text-blue-700 uppercase tracking-wide">Total Assets - {{ summary.totalAssets }} items</p>
-                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalValue, userCurrency) }}</p>
+                      <p class="text-xs font-medium text-blue-700 uppercase tracking-wide">Total Assets: {{ summary.totalAssets }} items</p>
+                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ summary.totalValue | currency:'INR':'symbol':'1.0-0' }}</p>
                   </div>
                   <div class="bg-blue-500 p-3 rounded-lg">
                       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,8 +54,8 @@
               <div class="flex items-center justify-between ">
                   <div class="absolute bottom-0 right-0 w-24 h-24 bg-red-300 rounded-full -mr-12 -mb-12 opacity-20"></div>
                   <div>
-                      <p class="text-xs font-medium text-red-700 uppercase tracking-wide">Total Liabilities - {{ summary.totalLiabilityCount }} active</p>
-                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalLiabilities, userCurrency) }}</p>
+                      <p class="text-xs font-medium text-red-700 uppercase tracking-wide">Total Liabilities: {{ summary.totalLiabilityCount }} active</p>
+                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ summary.totalLiabilities | currency:'INR':'symbol':'1.0-0' }}</p>
                   </div>
                   <div class="bg-red-500 p-3 rounded-lg">
                       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,8 +76,8 @@
               <div class="flex items-center justify-between ">
                   <div class="absolute bottom-0 right-0 w-24 h-24 bg-emerald-300 rounded-full -mr-12 -mb-12 opacity-20"></div>
                   <div>
-                      <p class="text-xs font-medium text-emerald-700 uppercase tracking-wide">Net Worth - Assets - Liabilities</p>
-                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.netWorth, userCurrency) }}</p>
+                      <p class="text-xs font-medium text-emerald-700 uppercase tracking-wide">Net Worth: Assets - Liabilities</p>
+                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ summary.netWorth | currency:'INR':'symbol':'1.0-0' }}</p>
                   </div>
                   <div class="bg-emerald-500 p-3 rounded-lg">
                       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
                   <div class="absolute bottom-0 right-0 w-24 h-24 rounded-full -mr-12 -mb-12 opacity-20" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-green-300' : 'bg-orange-300'"></div>
                   <div>
                       <p class="text-xs font-medium uppercase tracking-wide" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">{{ summary.totalGainLoss >= 0 ? 'Total Gain' : 'Total Loss' }}</p>
-                      <p class="text-2xl font-bold  mt-1" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">{{ formatCurrency(summary.totalGainLoss, userCurrency) }}</p>
+                      <p class="text-2xl font-bold  mt-1" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">{{ summary.totalGainLoss  | currency:'INR':'symbol':'1.0-0' }}</p>
                   </div>
                   <div class="p-3 rounded-lg" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-green-500' : 'bg-orange-500'">
                       <svg *ngIf="summary.totalGainLoss >= 0" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@
                     <span class="text-sm  text-gray-700 truncate">{{ entry.name }}</span>
                   </div>
                   <div class="flex items-center gap-3 ml-3">
-                    <span class="text-sm  text-gray-700 whitespace-nowrap">{{ formatCurrency(entry.value) }}</span>
+                    <span class="text-sm  text-gray-700 whitespace-nowrap">{{ entry.value | currency:'INR':'symbol':'1.0-0' }}</span>
                     <span class="text-xs  text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full whitespace-nowrap">
                       {{ ((entry.value / summary.totalValue) * 100).toFixed(1) }}%
                     </span>
@@ -221,7 +221,7 @@
                     <span class="text-sm  text-gray-700 truncate">{{ entry.name }}</span>
                   </div>
                   <div class="flex items-center gap-3 ml-3">
-                    <span class="text-sm  text-gray-700 whitespace-nowrap">{{ formatCurrency(entry.value) }}</span>
+                    <span class="text-sm  text-gray-700 whitespace-nowrap">{{ entry.value | currency:'INR':'symbol':'1.0-0' }}</span>
                     <span class="text-xs  text-red-700 bg-red-100 px-2.5 py-1 rounded-full whitespace-nowrap">
                       {{ ((entry.value / summary.totalLiabilities) * 100).toFixed(1) }}%
                     </span>
@@ -423,13 +423,13 @@
             <div class="space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-gray-600">Current</span>
-                <span class="text-sm font-semibold text-gray-700">{{ formatCurrency(asset.currentValue) }}</span>
+                <span class="text-sm font-semibold text-gray-700">{{ asset.currentValue | currency:'INR':'symbol':'1.0-0' }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-xs text-gray-600">Gain/Loss</span>
                 <span class="text-sm font-semibold"
                       [ngClass]="(asset.gainLoss || 0) >= 0 ? 'text-green-600' : 'text-red-600'">
-                  {{ formatCurrency(asset.gainLoss || 0) }}
+                  {{ asset.gainLoss || 0 | currency:'INR':'symbol':'1.0-0' }}
                 </span>
               </div>
               <div class="pt-2 border-t border-gray-200">
@@ -484,9 +484,9 @@
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Avg Asset</p>
           <p class="text-2xl sm:text-2xl font-extrabold text-gray-700">
             <ng-container *ngIf="summary && summary.totalAssets > 0; else zeroAvg">
-              {{ formatCurrency(summary.totalValue / summary.totalAssets) }}
+              {{ (summary.totalValue / summary.totalAssets) | currency:'INR':'symbol':'1.0-0' }}
             </ng-container>
-            <ng-template #zeroAvg>{{ formatCurrency(0) }}</ng-template>
+            <ng-template #zeroAvg>{{ 0 | currency:'INR':'symbol':'1.0-0' }}</ng-template>
           </p>
           <p class="text-sm text-gray-600 mt-2">Per holding</p>
         </div>

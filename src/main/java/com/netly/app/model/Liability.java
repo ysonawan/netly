@@ -51,8 +51,6 @@ public class Liability {
 
     private String description;
 
-    private String currency;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -63,9 +61,6 @@ public class Liability {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (currency == null) {
-            currency = "INR";
-        }
     }
 
     @PreUpdate

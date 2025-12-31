@@ -2,7 +2,6 @@ package com.netly.app.controller;
 
 import com.netly.app.dto.CustomAssetTypeDTO;
 import com.netly.app.dto.CustomLiabilityTypeDTO;
-import com.netly.app.dto.CurrencyRateDTO;
 import com.netly.app.service.ConfigurationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,25 +22,6 @@ public class ConfigurationController {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    // Currency Rate Endpoints
-    @GetMapping("/currency-rates")
-    public ResponseEntity<List<CurrencyRateDTO>> getAllCurrencyRates() {
-        String email = getCurrentUserEmail();
-        return ResponseEntity.ok(configurationService.getAllCurrencyRates(email));
-    }
-
-    @PostMapping("/currency-rates")
-    public ResponseEntity<CurrencyRateDTO> saveCurrencyRate(@RequestBody CurrencyRateDTO dto) {
-        String email = getCurrentUserEmail();
-        return ResponseEntity.ok(configurationService.saveCurrencyRate(email, dto));
-    }
-
-    @DeleteMapping("/currency-rates/{currencyCode}")
-    public ResponseEntity<Void> deleteCurrencyRate(@PathVariable String currencyCode) {
-        String email = getCurrentUserEmail();
-        configurationService.deleteCurrencyRate(email, currencyCode);
-        return ResponseEntity.ok().build();
-    }
 
     // Custom Asset Type Endpoints
     @GetMapping("/custom-asset-types")

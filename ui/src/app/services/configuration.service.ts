@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CurrencyRate, CustomAssetType, CustomLiabilityType } from '../models/configuration.model';
+import { CustomAssetType, CustomLiabilityType } from '../models/configuration.model';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -12,18 +12,6 @@ export class ConfigurationService {
 
   constructor(private http: HttpClient) {}
 
-  // Currency Rate Configuration
-  getAllCurrencyRates(): Observable<CurrencyRate[]> {
-    return this.http.get<CurrencyRate[]>(`${this.apiUrl}/configuration/currency-rates`);
-  }
-
-  saveCurrencyRate(rate: CurrencyRate): Observable<CurrencyRate> {
-    return this.http.post<CurrencyRate>(`${this.apiUrl}/configuration/currency-rates`, rate);
-  }
-
-  deleteCurrencyRate(currencyCode: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/configuration/currency-rates/${currencyCode}`);
-  }
 
   // Custom Asset Types
   getAllCustomAssetTypes(): Observable<CustomAssetType[]> {

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AssetService } from '../../services/asset.service';
 import { ConfigurationService } from '../../services/configuration.service';
 import { Asset } from '../../models/asset.model';
-import { CurrencyRate, CustomAssetType } from '../../models/configuration.model';
+import { CustomAssetType } from '../../models/configuration.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -16,14 +16,12 @@ export class AssetFormComponent implements OnInit {
     asset: Asset = {
         name: '',
         customAssetTypeId: 0,
-        currentValue: 0,
-        currency: 'INR'
+        currentValue: 0
     };
 
     isEditMode = false;
     assetId?: number;
     loading = false;
-    currencyOptions: CurrencyRate[] = [];
     assetTypeOptions: CustomAssetType[] = [];
 
     constructor(
@@ -34,14 +32,6 @@ export class AssetFormComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.configurationService.getAllCurrencyRates().subscribe({
-            next: (currencies) => {
-                this.currencyOptions = currencies.filter(c => c.isActive !== false);
-            },
-            error: (err) => {
-                console.error('Failed to load currencies', err);
-            }
-        });
         this.configurationService.getAllCustomAssetTypes().subscribe({
             next: (types) => {
                 this.assetTypeOptions = types.filter(t => t.isActive !== false);

@@ -16,7 +16,6 @@ export interface AssetSnapshot {
   assetTypeName: string;
   currentValue: number;
   gainLoss: number;
-  currency: string;
   valueInInr: number;
 }
 
@@ -26,7 +25,6 @@ export interface LiabilitySnapshot {
   liabilityName: string;
   liabilityTypeName: string;
   currentBalance: number;
-  currency: string;
   balanceInInr: number;
 }
 

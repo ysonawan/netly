@@ -93,7 +93,6 @@ public class LiabilityService {
         existingLiability.setMonthlyPayment(liabilityDTO.getMonthlyPayment());
         existingLiability.setLender(liabilityDTO.getLender());
         existingLiability.setDescription(liabilityDTO.getDescription());
-        existingLiability.setCurrency(liabilityDTO.getCurrency());
 
         Liability updatedLiability = liabilityRepository.save(existingLiability);
         return convertToDTO(updatedLiability);
@@ -122,7 +121,6 @@ public class LiabilityService {
         dto.setMonthlyPayment(liability.getMonthlyPayment());
         dto.setLender(liability.getLender());
         dto.setDescription(liability.getDescription());
-        dto.setCurrency(liability.getCurrency());
         dto.setPaidAmount(liability.getPaidAmount());
         dto.setRepaymentPercentage(liability.getRepaymentPercentage());
         dto.setUpdatedAt(liability.getUpdatedAt());
@@ -141,7 +139,6 @@ public class LiabilityService {
         liability.setMonthlyPayment(dto.getMonthlyPayment());
         liability.setLender(dto.getLender());
         liability.setDescription(dto.getDescription());
-        liability.setCurrency(dto.getCurrency());
         return liability;
     }
 }

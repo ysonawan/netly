@@ -20,7 +20,6 @@ export class DashboardComponent implements OnInit {
   assets: Asset[] = [];
   liabilities: Liability[] = [];
   loading = true;
-  userCurrency: string = 'INR'; // Default currency, can be set from user preferences
   customAssetTypes: CustomAssetType[] = [];
 
   // Expose enum for template
@@ -63,7 +62,6 @@ export class DashboardComponent implements OnInit {
     private portfolioSnapshotService: PortfolioSnapshotService,
     private router: Router
   ) {
-    this.loadUserCurrency();
   }
 
   ngOnInit(): void {
@@ -76,14 +74,6 @@ export class DashboardComponent implements OnInit {
     if (this.summary) {
       this.prepareChartData(this.summary);
       this.prepareLiabilityChartDataInternal(this.summary);
-    }
-  }
-
-  loadUserCurrency(): void {
-    // Try to load user's preferred currency from localStorage or user settings
-    const savedCurrency = localStorage.getItem('userCurrency');
-    if (savedCurrency) {
-      this.userCurrency = savedCurrency;
     }
   }
 
@@ -225,34 +215,21 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  formatCurrency(value: number | undefined, currency?: string): string {
-    if (!value && value !== 0) return this.formatZero(currency);
-    const currencyCode = currency || this.userCurrency || 'INR';
-    try {
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(value);
-    } catch (error) {
-      // Fallback if currency code is invalid
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(value);
-    }
+  formatCurrency(value: number): string {
+    if (!value && value !== 0) return this.formatZero();
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
   }
 
-
-  formatZero(currency?: string): string {
-    const currencyCode = currency || this.userCurrency || 'INR';
+  formatZero(): string {
     try {
       return new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: currencyCode
+        currency: 'INR'
       }).format(0);
     } catch (error) {
       return '₹0.00';

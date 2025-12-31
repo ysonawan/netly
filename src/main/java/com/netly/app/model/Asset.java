@@ -46,8 +46,6 @@ public class Asset {
 
     private String location; // For real estate
 
-    private String currency;
-
     private Boolean illiquid;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -60,9 +58,6 @@ public class Asset {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (currency == null) {
-            currency = "INR";
-        }
     }
 
     @PreUpdate

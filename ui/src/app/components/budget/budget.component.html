@@ -16,7 +16,7 @@
         <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
           <div class="flex flex-col">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Income</p>
-            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalIncome) }}</p>
+            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ summary.totalIncome | currency:'INR':'symbol':'1.0-0' }}</p>
           </div>
         </div>
 
@@ -24,7 +24,7 @@
         <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
           <div class="flex flex-col">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Expenses</p>
-            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalExpenses) }}</p>
+            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ summary.totalExpenses | currency:'INR':'symbol':'1.0-0' }}</p>
           </div>
         </div>
 
@@ -32,7 +32,7 @@
         <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
           <div class="flex flex-col">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Investments</p>
-            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalInvestments) }}</p>
+            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ summary.totalInvestments | currency:'INR':'symbol':'1.0-0' }}</p>
             <p class="text-sm text-blue-600 mt-1">{{ summary.investmentPercentage.toFixed(1) }}% of income</p>
           </div>
         </div>
@@ -41,7 +41,7 @@
         <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-orange-500">
           <div class="flex flex-col">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Living Expenses</p>
-            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalNonInvestmentExpenses) }}</p>
+            <p class="text-2xl sm:text-2xl font-bold text-gray-700 mt-1">{{ summary.totalNonInvestmentExpenses | currency:'INR':'symbol':'1.0-0' }}</p>
             <p class="text-sm text-orange-600 mt-1">{{ summary.nonInvestmentExpensePercentage.toFixed(1) }}% of income</p>
           </div>
         </div>
@@ -51,7 +51,7 @@
           <div class="flex flex-col">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Surplus/Deficit</p>
             <p class="text-2xl sm:text-2xl font-bold mt-1" [ngClass]="summary.totalSurplus >= 0 ? 'text-emerald-600' : 'text-red-600'">
-              {{ formatCurrency(summary.totalSurplus) }}
+              {{ summary.totalSurplus | currency:'INR':'symbol':'1.0-0' }}
             </p>
             <p class="text-sm mt-1" [ngClass]="summary.totalSurplus >= 0 ? 'text-emerald-600' : 'text-red-600'">
                 {{ summary.surplusOrDeficitRate.toFixed(1) }}%  of income
@@ -133,7 +133,7 @@
                   <p class="text-xs text-gray-500" *ngIf="item.description">{{ item.description }}</p>
                 </div>
                 <div class="flex items-center gap-3">
-                  <p class="font-semibold text-green-600">{{ formatCurrency(item.amount) }}</p>
+                  <p class="font-semibold text-green-600">{{ item.amount | currency:'INR':'symbol':'1.0-0' }}</p>
                   <div class="flex gap-2">
                     <button
                       (click)="startEditingIncome(item)"
@@ -200,7 +200,7 @@
           <div class="mt-4 pt-4 border-t border-gray-200">
             <div class="flex justify-between items-center">
               <p class=" font-semibold text-gray-700">Total Income</p>
-              <p class=" font-semibold text-green-600">{{ formatCurrency(summary.totalIncome) }}</p>
+              <p class=" font-semibold text-green-600">{{ summary.totalIncome | currency:'INR':'symbol':'1.0-0' }}</p>
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@
                       <p class="text-xs text-gray-500" *ngIf="item.description">{{ item.description }}</p>
                     </div>
                     <div class="flex items-center gap-3">
-                      <p class="font-semibold text-blue-600 ">{{ formatCurrency(item.amount) }}</p>
+                      <p class="font-semibold text-blue-600 ">{{ item.amount | currency:'INR':'symbol':'1.0-0' }}</p>
                       <div class="flex gap-2">
                         <button
                           (click)="startEditingExpense(item)"
@@ -359,7 +359,7 @@
                       <p class="text-xs text-gray-500" *ngIf="item.description">{{ item.description }}</p>
                     </div>
                     <div class="flex items-center gap-3">
-                      <p class="font-semibold text-orange-600 ">{{ formatCurrency(item.amount) }}</p>
+                      <p class="font-semibold text-orange-600 ">{{ item.amount | currency:'INR':'symbol':'1.0-0' }}</p>
                       <div class="flex gap-2">
                         <button
                           (click)="startEditingExpense(item)"
@@ -437,15 +437,15 @@
             <div class="space-y-2">
               <div class="flex justify-between items-center text-sm">
                 <p class="text-gray-600">Investments</p>
-                <p class="font-semibold text-blue-600">{{ formatCurrency(summary.totalInvestments) }}</p>
+                <p class="font-semibold text-blue-600">{{ summary.totalInvestments | currency:'INR':'symbol':'1.0-0' }}</p>
               </div>
-              <div class="flex justify-between items-center text-sm">
-                <p class="text-gray-600">Living Expenses</p>
-                <p class="font-semibold text-orange-600">{{ formatCurrency(summary.totalNonInvestmentExpenses) }}</p>
+              <div class="flex justify-between items-center py-2 px-3 bg-orange-50 rounded-lg">
+                <p class="font-medium text-orange-700">Living Expenses</p>
+                <p class="font-semibold text-orange-600">{{ summary.totalNonInvestmentExpenses | currency:'INR':'symbol':'1.0-0' }}</p>
               </div>
-              <div class="flex justify-between items-center pt-2 border-t">
-                <p class=" font-semibold text-gray-700">Total Expenses</p>
-                <p class=" font-semibold text-red-600">{{ formatCurrency(summary.totalExpenses) }}</p>
+              <div class="flex justify-between items-center py-2 px-3 bg-red-50 rounded-lg border-t-2 border-red-200">
+                <p class="font-bold text-red-700">Total Expenses</p>
+                <p class=" font-semibold text-red-600">{{ summary.totalExpenses | currency:'INR':'symbol':'1.0-0' }}</p>
               </div>
             </div>
           </div>

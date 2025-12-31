@@ -74,12 +74,4 @@ export class AuthService {
   isAuthenticated(): boolean {
     return !!this.currentUserValue && !!this.token;
   }
-
-  setUserCurrency(currency: string): void {
-    localStorage.setItem('userCurrency', currency);
-  }
-
-  getUserCurrency(): string {
-    return localStorage.getItem('userCurrency') || 'INR';
-  }
 }

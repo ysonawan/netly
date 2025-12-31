@@ -10,7 +10,6 @@ export interface Asset {
   quantity?: number;
   description?: string;
   location?: string;
-  currency?: string;
   illiquid?: boolean;
   gainLoss?: number;
   gainLossPercentage?: number;

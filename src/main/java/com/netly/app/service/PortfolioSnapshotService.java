@@ -27,7 +27,6 @@ public class PortfolioSnapshotService {
     private final AssetRepository assetRepository;
     private final LiabilityRepository liabilityRepository;
     private final UserRepository userRepository;
-    private final CurrencyConversionService currencyConversionService;
     private final AssetService assetService;
 
     private User getCurrentUser() {
@@ -65,7 +64,7 @@ public class PortfolioSnapshotService {
 
         portfolioSnapshot = portfolioSnapshotRepository.save(portfolioSnapshot);
 
-        // Create asset snapshots
+        // Create asset snapshots - all values are in INR
         List<Asset> assets = assetRepository.findByUserOrderByUpdatedAtDesc(user);
         for (Asset asset : assets) {
             AssetSnapshot assetSnapshot = new AssetSnapshot();
@@ -75,13 +74,11 @@ public class PortfolioSnapshotService {
             assetSnapshot.setAssetTypeName(asset.getAssetType().getDisplayName());
             assetSnapshot.setCurrentValue(asset.getCurrentValue());
             assetSnapshot.setGainLoss(asset.getGainLoss());
-            assetSnapshot.setCurrency(asset.getCurrency());
-            assetSnapshot.setValueInInr(currencyConversionService.convertToINR(
-                    asset.getCurrentValue(), asset.getCurrency(), user));
+            assetSnapshot.setValueInInr(asset.getCurrentValue());
             assetSnapshotRepository.save(assetSnapshot);
         }
 
-        // Create liability snapshots
+        // Create liability snapshots - all values are in INR
         List<Liability> liabilities = liabilityRepository.findByUserOrderByUpdatedAtDesc(user);
         for (Liability liability : liabilities) {
             LiabilitySnapshot liabilitySnapshot = new LiabilitySnapshot();
@@ -90,9 +87,7 @@ public class PortfolioSnapshotService {
             liabilitySnapshot.setLiabilityName(liability.getName());
             liabilitySnapshot.setLiabilityTypeName(liability.getLiabilityType().getDisplayName());
             liabilitySnapshot.setCurrentBalance(liability.getCurrentBalance());
-            liabilitySnapshot.setCurrency(liability.getCurrency());
-            liabilitySnapshot.setBalanceInInr(currencyConversionService.convertToINR(
-                    liability.getCurrentBalance(), liability.getCurrency(), user));
+            liabilitySnapshot.setBalanceInInr(liability.getCurrentBalance());
             liabilitySnapshotRepository.save(liabilitySnapshot);
         }
 
@@ -261,10 +256,9 @@ public class PortfolioSnapshotService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
             values.add(totalValue);
 
+            // All values are in INR, no conversion needed
             BigDecimal totalGain = snapshotsForDate.stream()
-                    .map(a -> a.getGainLoss() != null ?
-                        currencyConversionService.convertToINR(a.getGainLoss(), a.getCurrency(),
-                            portfolioSnapshots.get(0).getUser()) : BigDecimal.ZERO)
+                    .map(a -> a.getGainLoss() != null ? a.getGainLoss() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
             gains.add(totalGain);
         }

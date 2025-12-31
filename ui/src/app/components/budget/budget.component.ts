@@ -299,15 +299,6 @@ export class BudgetComponent implements OnInit {
     return item.id ? this.editingExpense[item.id] || false : false;
   }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  }
-
   formatCompactNumber(value: number): string {
     if (value >= 10000000) {
       return (value / 10000000).toFixed(1) + ' Cr';
@@ -765,5 +756,26 @@ export class BudgetComponent implements OnInit {
       '#6366f1'  // indigo
     ];
     return colors[index % colors.length];
+  }
+
+  formatCurrency(value: number): string {
+    if (!value && value !== 0) return this.formatZero();
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  }
+
+  formatZero(): string {
+    try {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR'
+      }).format(0);
+    } catch (error) {
+      return '₹0.00';
+    }
   }
 }

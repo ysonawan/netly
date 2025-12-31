@@ -69,7 +69,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Purchase Price</p>
-              <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(totalPurchasePrice, userCurrency) }}</p>
+              <p class="text-2xl font-bold text-gray-700 mt-1">{{ totalPurchasePrice | currency:'INR':'symbol':'1.0-0' }}</p>
             </div>
             <div class="bg-blue-100 p-3 rounded-lg">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +84,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Current Value</p>
-              <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(totalCurrentValue, userCurrency) }}</p>
+              <p class="text-2xl font-bold text-gray-700 mt-1">{{ totalCurrentValue | currency:'INR':'symbol':'1.0-0' }}</p>
             </div>
             <div class="bg-green-100 p-3 rounded-lg">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +100,7 @@
             <div>
               <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Gains/Loss</p>
               <p class="text-2xl font-bold mt-1" [ngClass]="totalGains >= 0 ? 'text-emerald-600' : 'text-red-600'">
-                {{ formatCurrency(totalGains, userCurrency) }}
+                {{ totalGains | currency:'INR':'symbol':'1.0-0' }}
               </p>
               <p class="text-sm font-medium mt-1" [ngClass]="totalGains >= 0 ? 'text-emerald-600' : 'text-red-600'">
                 ({{ totalGainsPercentage.toFixed(2) }}%)
@@ -178,10 +178,10 @@
                 </td>
 
                 <td class="px-6 py-4 text-right">
-                  <div class="text-sm font-bold text-gray-700">{{ formatCurrency(asset.currentValue, asset.currency) }}</div>
+                  <div class="text-sm font-bold text-gray-700">{{ asset.currentValue | currency:'INR':'symbol':'1.0-0' }}</div>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <div class="text-sm text-gray-600">{{ formatCurrency(asset.purchasePrice, asset.currency) }}</div>
+                  <div class="text-sm text-gray-600">{{ asset.purchasePrice | currency:'INR':'symbol':'1.0-0' }}</div>
                 </td>
                 <td class="px-6 py-4 text-center">
                   <div class="text-sm text-gray-600">{{ asset.quantity || 'N/A' }}</div>
@@ -192,7 +192,7 @@
                 <td class="px-6 py-4 text-right">
                   <div class="space-y-1">
                     <div class="text-sm font-semibold" [ngClass]="(asset.gainLoss ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'">
-                      {{ formatCurrency(asset.gainLoss, asset.currency) }}
+                      {{ asset.gainLoss | currency:'INR':'symbol':'1.0-0' }}
                     </div>
                     <div class="text-xs" [ngClass]="(asset.gainLoss ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'">
                       ({{ asset.gainLossPercentage?.toFixed(2) }}%)
@@ -265,11 +265,11 @@
           <div class="space-y-2 border-t border-gray-100 pt-3">
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-500">Current Value</span>
-              <span class="text-sm font-bold text-gray-700">{{ formatCurrency(asset.currentValue, asset.currency) }}</span>
+              <span class="text-sm font-bold text-gray-700">{{ asset.currentValue | currency:'INR':'symbol':'1.0-0' }}</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-500">Purchase Price</span>
-              <span class="text-sm font-bold text-gray-700">{{ formatCurrency(asset.purchasePrice, asset.currency) }}</span>
+            <div class="flex justify-between items-center py-1.5">
+              <span class="text-xs text-gray-500">Purchase Price</span>
+              <span class="text-sm font-bold text-gray-700">{{ asset.purchasePrice | currency:'INR':'symbol':'1.0-0' }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-500">Quantity</span>
@@ -283,7 +283,7 @@
               <span class="text-sm font-semibold text-gray-700">Gain/Loss</span>
               <div class="text-right">
                 <div class="text-sm font-bold" [ngClass]="(asset.gainLoss ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'">
-                  {{ formatCurrency(asset.gainLoss, asset.currency) }}
+                  {{ asset.gainLoss | currency:'INR':'symbol':'1.0-0' }}
                 </div>
                 <div class="text-xs" [ngClass]="(asset.gainLoss ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'">
                   ({{ asset.gainLossPercentage?.toFixed(2) }}%)

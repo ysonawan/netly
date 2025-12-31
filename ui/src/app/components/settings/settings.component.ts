@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfigurationService } from '../../services/configuration.service';
-import { CurrencyRate, CustomAssetType, CustomLiabilityType } from '../../models/configuration.model';
+import { CustomAssetType, CustomLiabilityType } from '../../models/configuration.model';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
 
@@ -11,12 +11,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
-  activeTab: 'asset-types' | 'liability-types' | 'currencies' = 'asset-types';
-
-  currencyRates: CurrencyRate[] = [];
-  editingCurrency: string | null = null;
-  newCurrency: CurrencyRate = this.getEmptyCurrency();
-  showAddCurrency: boolean = false;
+  activeTab: 'asset-types' | 'liability-types' = 'asset-types';
 
   // Custom asset and liability types
   customAssetTypes: CustomAssetType[] = [];
@@ -41,92 +36,10 @@ export class SettingsComponent implements OnInit {
   }
 
   loadAllConfigurations(): void {
-    this.loadCurrencyRates();
     this.loadCustomAssetTypes();
     this.loadCustomLiabilityTypes();
   }
 
-  loadCurrencyRates(): void {
-    this.loading = true;
-    this.configService.getAllCurrencyRates().subscribe({
-      next: (rates) => {
-        this.currencyRates = rates;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.showError(err?.error?.message || 'Failed to load currency rates');
-        this.loading = false;
-      }
-    });
-  }
-
-  saveCurrencyRate(rate: CurrencyRate): void {
-    this.configService.saveCurrencyRate(rate).subscribe({
-      next: () => {
-        this.showSuccess('Currency rate saved successfully');
-        this.editingCurrency = null;
-        this.loadCurrencyRates();
-      },
-      error: (err) => {
-        this.showError(err?.error?.message || 'Failed to save currency rate');
-      }
-    });
-  }
-
-  addNewCurrency(): void {
-    if (!this.newCurrency.currencyCode || !this.newCurrency.currencyName || !this.newCurrency.rateToInr) {
-      this.showError('Please fill in all fields');
-      return;
-    }
-
-    this.configService.saveCurrencyRate(this.newCurrency).subscribe({
-      next: () => {
-        this.showSuccess('Currency added successfully');
-        this.newCurrency = this.getEmptyCurrency();
-        this.showAddCurrency = false;
-        this.loadCurrencyRates();
-      },
-      error: (err) => {
-        this.showError(err?.error?.message || 'Failed to add currency');
-      }
-    });
-  }
-
-  toggleAddCurrency(): void {
-    this.showAddCurrency = !this.showAddCurrency;
-    if (!this.showAddCurrency) {
-      this.newCurrency = this.getEmptyCurrency();
-    }
-  }
-
-  deleteCurrencyRate(currencyCode: string): void {
-    if (currencyCode === 'INR') {
-      this.showError('Cannot delete INR currency');
-      return;
-    }
-
-    Swal.fire({
-      title: 'Are you sure?',
-      text: `Do you want to delete ${currencyCode} currency?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.configService.deleteCurrencyRate(currencyCode).subscribe({
-          next: () => {
-            Swal.fire('Deleted!', 'Currency has been deleted.', 'success');
-            this.loadCurrencyRates();
-          },
-          error: (err) => {
-            Swal.fire('Error!', err?.error?.message || 'Failed to delete currency', 'error');
-          }
-        });
-      }
-    });
-  }
 
   // Custom Asset Type Methods
   loadCustomAssetTypes(): void {
@@ -278,14 +191,6 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  getEmptyCurrency(): CurrencyRate {
-    return {
-      currencyCode: '',
-      currencyName: '',
-      rateToInr: 1,
-      isActive: true
-    };
-  }
 
   getEmptyCustomAssetType(): CustomAssetType {
     return {

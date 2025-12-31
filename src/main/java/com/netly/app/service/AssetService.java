@@ -28,7 +28,6 @@ public class AssetService {
     private final LiabilityRepository liabilityRepository;
     private final UserRepository userRepository;
     private final CustomAssetTypeRepository customAssetTypeRepository;
-    private final CurrencyConversionService currencyConversionService;
 
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -44,9 +43,6 @@ public class AssetService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get all assets for a specific user (used by scheduler)
-     */
     @Transactional(readOnly = true)
     public List<AssetDTO> getAllAssetsForUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -101,7 +97,6 @@ public class AssetService {
         existingAsset.setQuantity(assetDTO.getQuantity());
         existingAsset.setDescription(assetDTO.getDescription());
         existingAsset.setLocation(assetDTO.getLocation());
-        existingAsset.setCurrency(assetDTO.getCurrency());
         existingAsset.setIlliquid(assetDTO.getIlliquid());
 
         Asset updatedAsset = assetRepository.save(existingAsset);
@@ -122,42 +117,24 @@ public class AssetService {
         return getPortfolioSummaryForUser(currentUser.getId());
     }
 
-    /**
-     * Get portfolio summary for a specific user (used by scheduler)
-     */
     @Transactional(readOnly = true)
     public PortfolioSummaryDTO getPortfolioSummaryForUser(Long userId) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         List<Asset> assets = assetRepository.findByUserOrderByUpdatedAtDesc(currentUser);
 
-        // Convert all asset values to INR before calculations
+        // All asset values are in INR
         BigDecimal totalValue = assets.stream()
-                .map(asset -> currencyConversionService.convertToINR(
-                        asset.getCurrentValue(),
-                        asset.getCurrency(),
-                        currentUser))
+                .map(Asset::getCurrentValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalGainLoss = assets.stream()
-                .map(asset -> {
-                    BigDecimal gainLoss = asset.getGainLoss();
-                    return currencyConversionService.convertToINR(
-                            gainLoss,
-                            asset.getCurrency(),
-                            currentUser);
-                })
+                .map(Asset::getGainLoss)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalPurchaseValue = assets.stream()
                 .filter(a -> a.getPurchasePrice() != null && a.getQuantity() != null)
-                .map(a -> {
-                    BigDecimal purchaseValue = a.getPurchasePrice().multiply(a.getQuantity());
-                    return currencyConversionService.convertToINR(
-                            purchaseValue,
-                            a.getCurrency(),
-                            currentUser);
-                })
+                .map(a -> a.getPurchasePrice().multiply(a.getQuantity()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalGainLossPercentage = BigDecimal.ZERO;
@@ -167,17 +144,14 @@ public class AssetService {
                     .multiply(BigDecimal.valueOf(100));
         }
 
-        PortfolioSummaryDTO.AssetTypeBreakdown breakdown = calculateBreakdown(assets, currentUser);
+        PortfolioSummaryDTO.AssetTypeBreakdown breakdown = calculateBreakdown(assets);
 
         List<Liability> liabilities = liabilityRepository.findByUserOrderByUpdatedAtDesc(currentUser);
         BigDecimal totalLiabilities = liabilities.stream()
-                .map(liability -> currencyConversionService.convertToINR(
-                        liability.getCurrentBalance(),
-                        liability.getCurrency(),
-                        currentUser))
+                .map(Liability::getCurrentBalance)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        PortfolioSummaryDTO.LiabilityTypeBreakdown liabilityBreakdown = calculateLiabilityBreakdown(liabilities, currentUser);
+        PortfolioSummaryDTO.LiabilityTypeBreakdown liabilityBreakdown = calculateLiabilityBreakdown(liabilities);
 
         BigDecimal netWorth = totalValue.subtract(totalLiabilities);
 
@@ -195,34 +169,26 @@ public class AssetService {
         return summary;
     }
 
-    private PortfolioSummaryDTO.AssetTypeBreakdown calculateBreakdown(List<Asset> assets, User currentUser) {
+    private PortfolioSummaryDTO.AssetTypeBreakdown calculateBreakdown(List<Asset> assets) {
         PortfolioSummaryDTO.AssetTypeBreakdown breakdown = new PortfolioSummaryDTO.AssetTypeBreakdown();
 
-        // Dynamic breakdown based on actual custom asset types - convert to INR
         Map<String, BigDecimal> typeBreakdown = assets.stream()
                 .collect(Collectors.groupingBy(
                         asset -> asset.getAssetType().getDisplayName(),
-                        Collectors.mapping(asset -> currencyConversionService.convertToINR(
-                                asset.getCurrentValue(),
-                                asset.getCurrency(),
-                                currentUser),
+                        Collectors.mapping(Asset::getCurrentValue,
                                 Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
                 ));
         breakdown.setTypeBreakdown(typeBreakdown);
         return breakdown;
     }
 
-    private PortfolioSummaryDTO.LiabilityTypeBreakdown calculateLiabilityBreakdown(List<Liability> liabilities, User currentUser) {
+    private PortfolioSummaryDTO.LiabilityTypeBreakdown calculateLiabilityBreakdown(List<Liability> liabilities) {
         PortfolioSummaryDTO.LiabilityTypeBreakdown breakdown = new PortfolioSummaryDTO.LiabilityTypeBreakdown();
 
-        // Dynamic breakdown based on actual custom liability types - convert to INR
         Map<String, BigDecimal> typeBreakdown = liabilities.stream()
                 .collect(Collectors.groupingBy(
                         liability -> liability.getLiabilityType().getDisplayName(),
-                        Collectors.mapping(liability -> currencyConversionService.convertToINR(
-                                liability.getCurrentBalance(),
-                                liability.getCurrency(),
-                                currentUser),
+                        Collectors.mapping(Liability::getCurrentBalance,
                                 Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
                 ));
 
@@ -243,7 +209,6 @@ public class AssetService {
         dto.setQuantity(asset.getQuantity());
         dto.setDescription(asset.getDescription());
         dto.setLocation(asset.getLocation());
-        dto.setCurrency(asset.getCurrency());
         dto.setIlliquid(asset.getIlliquid());
         dto.setGainLoss(asset.getGainLoss());
         dto.setGainLossPercentage(asset.getGainLossPercentage());
@@ -261,8 +226,8 @@ public class AssetService {
         asset.setQuantity(dto.getQuantity());
         asset.setDescription(dto.getDescription());
         asset.setLocation(dto.getLocation());
-        asset.setCurrency(dto.getCurrency());
         asset.setIlliquid(dto.getIlliquid());
         return asset;
     }
 }
+

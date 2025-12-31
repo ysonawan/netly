@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { LiabilityService } from '../../services/liability.service';
 import { Liability } from '../../models/liability.model';
 import { ConfigurationService } from '../../services/configuration.service';
-import { CustomLiabilityType, CurrencyRate } from '../../models/configuration.model';
+import { CustomLiabilityType } from '../../models/configuration.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -19,7 +19,6 @@ export class LiabilityListComponent implements OnInit {
     filterType: string = 'ALL';
     filterStatus: string = 'ALL';
     searchTerm: string = '';
-    userCurrency: string = 'INR';
 
     // Summary statistics
     totalCurrentBalance: number = 0;
@@ -28,16 +27,12 @@ export class LiabilityListComponent implements OnInit {
     overallPaidOffPercentage: number = 0;
 
     liabilityTypeOptions: CustomLiabilityType[] = [];
-    currencyRates: CurrencyRate[] = [];
-    currencyRateMap: Map<string, number> = new Map();
 
     constructor(
         private liabilityService: LiabilityService,
         private router: Router,
         private configurationService: ConfigurationService
-    ) {
-        this.loadUserCurrency();
-    }
+    ) {}
 
     ngOnInit(): void {
         this.configurationService.getAllCustomLiabilityTypes().subscribe({
@@ -48,37 +43,7 @@ export class LiabilityListComponent implements OnInit {
                 console.error('Failed to load liability types', err);
             }
         });
-        this.loadCurrencyRates();
         this.loadLiabilities();
-    }
-
-    loadUserCurrency(): void {
-        const savedCurrency = localStorage.getItem('userCurrency');
-        if (savedCurrency) {
-            this.userCurrency = savedCurrency;
-        }
-    }
-
-    loadCurrencyRates(): void {
-        this.configurationService.getAllCurrencyRates().subscribe({
-            next: (rates) => {
-                this.currencyRates = rates;
-                // Create a map for quick lookup
-                this.currencyRateMap.clear();
-                rates.forEach(rate => {
-                    if (rate.isActive) {
-                        this.currencyRateMap.set(rate.currencyCode, rate.rateToInr);
-                    }
-                });
-                // INR to INR rate is always 1
-                this.currencyRateMap.set('INR', 1);
-            },
-            error: (err) => {
-                console.error('Failed to load currency rates', err);
-                // Set default INR rate
-                this.currencyRateMap.set('INR', 1);
-            }
-        });
     }
 
     loadLiabilities(): void {
@@ -127,15 +92,9 @@ export class LiabilityListComponent implements OnInit {
         this.overallPaidOffPercentage = 0;
 
         this.filteredLiabilities.forEach(liability => {
-            const currency = liability.currency || 'INR';
-            const rate = this.currencyRateMap.get(currency) || 1;
-
-            // Convert to INR
-            const currentBalanceInINR = (liability.currentBalance || 0) * rate;
-            const originalAmountInINR = (liability.originalAmount || 0) * rate;
-
-            this.totalCurrentBalance += currentBalanceInINR;
-            this.totalOriginalAmount += originalAmountInINR;
+            // All amounts are in INR
+            this.totalCurrentBalance += (liability.currentBalance || 0);
+            this.totalOriginalAmount += (liability.originalAmount || 0);
         });
 
         // Calculate total paid amount
@@ -188,38 +147,6 @@ export class LiabilityListComponent implements OnInit {
         this.router.navigate(['/liabilities/new']);
     }
 
-    formatCurrency(value: number | undefined, currency?: string): string {
-        if (!value && value !== 0) return this.formatZero(currency);
-        const currencyCode = currency || this.userCurrency || 'INR';
-        try {
-            return new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: currencyCode,
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(value);
-        } catch (error) {
-            return new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(value);
-        }
-    }
-
-    formatZero(currency?: string): string {
-        const currencyCode = currency || this.userCurrency || 'INR';
-        try {
-            return new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: currencyCode
-            }).format(0);
-        } catch (error) {
-            return '₹0.00';
-        }
-    }
-
     formatDate(date: string | undefined): string {
         if (!date) return 'N/A';
         return new Date(date).toLocaleDateString();
@@ -230,3 +157,4 @@ export class LiabilityListComponent implements OnInit {
         return `${value.toFixed(2)}%`;
     }
 }
+

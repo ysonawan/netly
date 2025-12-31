@@ -70,7 +70,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Original Amount</p>
-              <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(totalOriginalAmount, userCurrency) }}</p>
+              <p class="text-2xl font-bold text-gray-700 mt-1">{{ totalOriginalAmount | currency:'INR':'symbol':'1.0-0' }}</p>
             </div>
             <div class="bg-orange-100 p-3 rounded-lg">
               <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Current Balance</p>
-              <p class="text-2xl font-bold text-red-600 mt-1">{{ formatCurrency(totalCurrentBalance, userCurrency) }}</p>
+              <p class="text-2xl font-bold text-red-600 mt-1">{{ totalCurrentBalance | currency:'INR':'symbol':'1.0-0' }}</p>
             </div>
             <div class="bg-red-100 p-3 rounded-lg">
               <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,7 +102,7 @@
               <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Paid Off</p>
               <p class="text-2xl font-bold text-emerald-600 mt-1">{{ overallPaidOffPercentage.toFixed(2) }}%</p>
               <p class="text-sm font-medium text-gray-600 mt-1">
-                {{ formatCurrency(totalPaidAmount, userCurrency) }} paid
+                {{ totalPaidAmount | currency:'INR':'symbol':'1.0-0' }} paid
               </p>
             </div>
             <div class="bg-emerald-100 p-3 rounded-lg">
@@ -178,12 +178,12 @@
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="text-sm font-bold" [ngClass]="isClosed(liability) ? 'text-gray-400 line-through' : 'text-red-600'">
-                    {{ formatCurrency(liability.currentBalance, liability.currency) }}
+                    {{ liability.currentBalance | currency:'INR':'symbol':'1.0-0' }}
                   </div>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="text-sm" [ngClass]="isClosed(liability) ? 'text-gray-400' : 'text-gray-600'">
-                    {{ formatCurrency(liability.originalAmount, liability.currency) }}
+                    {{ liability.originalAmount | currency:'INR':'symbol':'1.0-0' }}
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center">
@@ -193,7 +193,7 @@
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="text-sm font-semibold" [ngClass]="isClosed(liability) ? 'text-gray-400' : 'text-gray-700'">
-                    {{ formatCurrency(liability.monthlyPayment, liability.currency) }}
+                    {{ liability.monthlyPayment | currency:'INR':'symbol':'1.0-0' }}
                   </div>
                 </td>
                 <td class="px-6 py-4">
@@ -280,13 +280,13 @@
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-500">Current Balance</span>
               <span class="text-sm font-bold" [ngClass]="isClosed(liability) ? 'text-gray-400 line-through' : 'text-red-600'">
-                {{ formatCurrency(liability.currentBalance, liability.currency) }}
+                {{ liability.currentBalance | currency:'INR':'symbol':'1.0-0' }}
               </span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-500">Original Amount</span>
               <span class="text-sm" [ngClass]="isClosed(liability) ? 'text-gray-400' : 'text-gray-700'">
-                {{ formatCurrency(liability.originalAmount, liability.currency) }}
+                {{ liability.originalAmount | currency:'INR':'symbol':'1.0-0' }}
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -298,7 +298,7 @@
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-500">Monthly Payment</span>
               <span class="text-sm font-semibold" [ngClass]="isClosed(liability) ? 'text-gray-400' : 'text-gray-700'">
-                {{ formatCurrency(liability.monthlyPayment, liability.currency) }}
+                {{ liability.monthlyPayment | currency:'INR':'symbol':'1.0-0' }}
               </span>
             </div>
             <div class="flex justify-between items-center">

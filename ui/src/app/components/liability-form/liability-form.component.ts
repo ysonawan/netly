@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LiabilityService } from '../../services/liability.service';
 import { Liability } from '../../models/liability.model';
 import { ConfigurationService } from '../../services/configuration.service';
-import { CurrencyRate, CustomLiabilityType } from '../../models/configuration.model';
+import { CustomLiabilityType } from '../../models/configuration.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -16,14 +16,12 @@ export class LiabilityFormComponent implements OnInit {
   liability: Liability = {
     name: '',
     customLiabilityTypeId: 0,
-    currentBalance: 0,
-    currency: 'INR'
+    currentBalance: 0
   };
 
   isEditMode = false;
   liabilityId?: number;
   loading = false;
-  currencyOptions: CurrencyRate[] = [];
   liabilityTypeOptions: CustomLiabilityType[] = [];
 
   constructor(
@@ -34,14 +32,6 @@ export class LiabilityFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.configurationService.getAllCurrencyRates().subscribe({
-      next: (currencies) => {
-        this.currencyOptions = currencies.filter(c => c.isActive !== false);
-      },
-      error: (err) => {
-        console.error('Failed to load currencies', err);
-      }
-    });
     this.configurationService.getAllCustomLiabilityTypes().subscribe({
       next: (types) => {
         this.liabilityTypeOptions = types.filter(t => t.isActive !== false);

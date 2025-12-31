@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AssetService } from '../../services/asset.service';
 import { Asset } from '../../models/asset.model';
 import Swal from 'sweetalert2';
-import {CustomAssetType, CurrencyRate} from "../../models/configuration.model";
+import {CustomAssetType} from "../../models/configuration.model";
 import {ConfigurationService} from "../../services/configuration.service";
 
 @Component({
@@ -19,7 +19,6 @@ export class AssetListComponent implements OnInit {
   filterType: string = 'ALL';
   filterLiquidity: string = 'ALL';
   searchTerm: string = '';
-  userCurrency: string = 'INR';
 
   // Summary statistics
   totalPurchasePrice: number = 0;
@@ -28,16 +27,12 @@ export class AssetListComponent implements OnInit {
   totalGainsPercentage: number = 0;
 
   assetTypeOptions: CustomAssetType[] = [];
-  currencyRates: CurrencyRate[] = [];
-  currencyRateMap: Map<string, number> = new Map();
 
   constructor(
     private assetService: AssetService,
     private router: Router,
     private configurationService: ConfigurationService
-  ) {
-    this.loadUserCurrency();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.configurationService.getAllCustomAssetTypes().subscribe({
@@ -48,37 +43,7 @@ export class AssetListComponent implements OnInit {
         console.error('Failed to load asset types', err);
       }
     });
-    this.loadCurrencyRates();
     this.loadAssets();
-  }
-
-  loadUserCurrency(): void {
-    const savedCurrency = localStorage.getItem('userCurrency');
-    if (savedCurrency) {
-      this.userCurrency = savedCurrency;
-    }
-  }
-
-  loadCurrencyRates(): void {
-    this.configurationService.getAllCurrencyRates().subscribe({
-      next: (rates) => {
-        this.currencyRates = rates;
-        // Create a map for quick lookup
-        this.currencyRateMap.clear();
-        rates.forEach(rate => {
-          if (rate.isActive) {
-            this.currencyRateMap.set(rate.currencyCode, rate.rateToInr);
-          }
-        });
-        // INR to INR rate is always 1
-        this.currencyRateMap.set('INR', 1);
-      },
-      error: (err) => {
-        console.error('Failed to load currency rates', err);
-        // Set default INR rate
-        this.currencyRateMap.set('INR', 1);
-      }
-    });
   }
 
   loadAssets(): void {
@@ -115,16 +80,11 @@ export class AssetListComponent implements OnInit {
     this.totalGainsPercentage = 0;
 
     this.filteredAssets.forEach(asset => {
-      const currency = asset.currency || 'INR';
-      const rate = this.currencyRateMap.get(currency) || 1;
       const quantity = asset.quantity || 1;
 
-      // Convert to INR and multiply purchase price by quantity
-      const purchasePriceInINR = (asset.purchasePrice || 0) * quantity * rate;
-      const currentValueInINR = (asset.currentValue || 0) * rate;
-
-      this.totalPurchasePrice += purchasePriceInINR;
-      this.totalCurrentValue += currentValueInINR;
+      // All amounts are in INR, multiply purchase price by quantity
+      this.totalPurchasePrice += (asset.purchasePrice || 0) * quantity;
+      this.totalCurrentValue += (asset.currentValue || 0);
     });
 
     this.totalGains = this.totalCurrentValue - this.totalPurchasePrice;
@@ -172,40 +132,9 @@ export class AssetListComponent implements OnInit {
     this.router.navigate(['/assets/new']);
   }
 
-  formatCurrency(value: number | undefined, currency?: string): string {
-    if (!value && value !== 0) return this.formatZero(currency);
-    const currencyCode = currency || this.userCurrency || 'INR';
-    try {
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(value);
-    } catch (error) {
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(value);
-    }
-  }
-
-  formatZero(currency?: string): string {
-    const currencyCode = currency || this.userCurrency || 'INR';
-    try {
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: currencyCode
-      }).format(0);
-    } catch (error) {
-      return '₹0.00';
-    }
-  }
-
   formatDate(date: string | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
   }
 }
+

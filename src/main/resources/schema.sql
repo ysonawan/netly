@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS netly_schema.assets (
     quantity NUMERIC(10,2),
     description TEXT,
     location VARCHAR(255),
-    currency VARCHAR(10) DEFAULT 'INR',
     illiquid BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -65,7 +64,6 @@ CREATE TABLE IF NOT EXISTS netly_schema.liabilities (
     monthly_payment NUMERIC(15,2),
     lender VARCHAR(255),
     description TEXT,
-    currency VARCHAR(10) DEFAULT 'INR',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES netly_schema.users(id) ON DELETE CASCADE
@@ -79,24 +77,6 @@ CREATE INDEX IF NOT EXISTS idx_liabilities_user_id ON netly_schema.liabilities(u
 CREATE INDEX IF NOT EXISTS idx_liabilities_custom_liability_type_id ON netly_schema.liabilities(custom_liability_type_id);
 CREATE INDEX IF NOT EXISTS idx_liabilities_created_at ON netly_schema.liabilities(created_at);
 CREATE INDEX IF NOT EXISTS idx_users_email ON netly_schema.users(email);
-
--- Create currency_rates table
-CREATE TABLE IF NOT EXISTS netly_schema.currency_rates (
-   id BIGSERIAL PRIMARY KEY,
-   user_id BIGINT NOT NULL,
-   currency_code VARCHAR(10) NOT NULL,
-    currency_name VARCHAR(255) NOT NULL,
-    rate_to_inr NUMERIC(15,6) NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES netly_schema.users(id) ON DELETE CASCADE,
-    UNIQUE(user_id, currency_code)
-    );
-
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_currency_rates_user_id ON netly_schema.currency_rates(user_id);
-CREATE INDEX IF NOT EXISTS idx_currency_rates_currency_code ON netly_schema.currency_rates(currency_code);
 
 -- Migration to add custom asset and liability types tables
 

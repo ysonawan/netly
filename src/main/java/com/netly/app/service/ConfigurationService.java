@@ -1,21 +1,16 @@
 package com.netly.app.service;
 
-import com.netly.app.dto.CurrencyRateDTO;
 import com.netly.app.dto.CustomAssetTypeDTO;
 import com.netly.app.dto.CustomLiabilityTypeDTO;
 import com.netly.app.model.*;
-import com.netly.app.repository.AssetRepository;
-import com.netly.app.repository.CurrencyRateRepository;
 import com.netly.app.repository.CustomAssetTypeRepository;
 import com.netly.app.repository.CustomLiabilityTypeRepository;
-import com.netly.app.repository.LiabilityRepository;
 import com.netly.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,12 +18,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ConfigurationService {
 
-    private final CurrencyRateRepository currencyRateRepository;
     private final CustomAssetTypeRepository customAssetTypeRepository;
     private final CustomLiabilityTypeRepository customLiabilityTypeRepository;
     private final UserRepository userRepository;
-    private final AssetRepository assetRepository;
-    private final LiabilityRepository liabilityRepository;
 
     // Default display names for asset types
     private static final Map<AssetType, String> DEFAULT_ASSET_NAMES = Map.of(
@@ -54,127 +46,10 @@ public class ConfigurationService {
             LiabilityType.OTHER, "Other"
     );
 
-    // Default currency rates (1 unit of currency = X INR)
-    private static final Map<String, CurrencyData> DEFAULT_CURRENCIES = Map.of(
-            "INR", new CurrencyData("Indian Rupee", new BigDecimal("1.000000")),
-            "USD", new CurrencyData("US Dollar", new BigDecimal("83.000000")),
-            "EUR", new CurrencyData("Euro", new BigDecimal("90.000000")),
-            "GBP", new CurrencyData("British Pound", new BigDecimal("105.000000")),
-            "AED", new CurrencyData("UAE Dirham", new BigDecimal("22.600000")),
-            "SGD", new CurrencyData("Singapore Dollar", new BigDecimal("62.000000"))
-    );
-
-    private static class CurrencyData {
-        String name;
-        BigDecimal rate;
-
-        CurrencyData(String name, BigDecimal rate) {
-            this.name = name;
-            this.rate = rate;
-        }
-    }
-
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    // Currency Rate methods
-    public List<CurrencyRateDTO> getAllCurrencyRates(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        ensureDefaultCurrencyRates(user);
-
-        Map<String, CurrencyRate> userRates = currencyRateRepository.findByUser(user)
-                .stream()
-                .collect(Collectors.toMap(CurrencyRate::getCurrencyCode, rate -> rate));
-
-        List<CurrencyRateDTO> result = new ArrayList<>();
-
-        // Add user's custom currencies
-        for (CurrencyRate rate : userRates.values()) {
-            result.add(convertToDTO(rate));
-        }
-
-        return result.stream()
-                .sorted(Comparator.comparing(CurrencyRateDTO::getCurrencyCode))
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public CurrencyRateDTO saveCurrencyRate(String email, CurrencyRateDTO dto) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Check if currency code or name already exists for this user (excluding current rate if updating)
-        List<CurrencyRate> existingRates = currencyRateRepository.findByUser(user);
-        for (CurrencyRate rate : existingRates) {
-            boolean isSameId = dto.getId() != null && rate.getId().equals(dto.getId());
-            if (!isSameId) {
-                if (rate.getCurrencyCode().equalsIgnoreCase(dto.getCurrencyCode())) {
-                    throw new RuntimeException("Currency code already exists");
-                }
-                if (rate.getCurrencyName() != null && dto.getCurrencyName() != null && rate.getCurrencyName().equalsIgnoreCase(dto.getCurrencyName())) {
-                    throw new RuntimeException("Currency name already exists");
-                }
-            }
-        }
-
-        CurrencyRate rate = currencyRateRepository
-                .findByUserAndCurrencyCode(user, dto.getCurrencyCode())
-                .orElse(new CurrencyRate());
-
-        rate.setUser(user);
-        rate.setCurrencyCode(dto.getCurrencyCode().toUpperCase());
-        rate.setCurrencyName(dto.getCurrencyName());
-        rate.setRateToInr(dto.getRateToInr());
-        rate.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-
-        rate = currencyRateRepository.save(rate);
-
-        return convertToDTO(rate);
-    }
-
-    @Transactional
-    public void deleteCurrencyRate(String email, String currencyCode) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Don't allow deleting INR
-        if ("INR".equals(currencyCode)) {
-            throw new RuntimeException("Cannot delete INR currency");
-        }
-
-        // Check if this currency is referenced by any assets
-        Long assetCount = assetRepository.countByUserAndCurrency(user, currencyCode);
-        if (assetCount > 0) {
-            throw new IllegalStateException(
-                    "Cannot delete currency because it is being used by " + assetCount + " asset(s). " +
-                            "Please reassign or delete those assets first."
-            );
-        }
-
-        // Check if this currency is referenced by any liabilities
-        Long liabilityCount = liabilityRepository.countByUserAndCurrency(user, currencyCode);
-        if (liabilityCount > 0) {
-            throw new IllegalStateException(
-                    "Cannot delete currency because it is being used by " + liabilityCount + " liability(ies). " +
-                            "Please reassign or delete those liabilities first."
-            );
-        }
-        currencyRateRepository.deleteByUserAndCurrencyCode(user, currencyCode);
-    }
-
-    private CurrencyRateDTO convertToDTO(CurrencyRate rate) {
-        CurrencyRateDTO dto = new CurrencyRateDTO();
-        dto.setId(rate.getId());
-        dto.setCurrencyCode(rate.getCurrencyCode());
-        dto.setCurrencyName(rate.getCurrencyName());
-        dto.setRateToInr(rate.getRateToInr());
-        dto.setIsActive(rate.getIsActive());
-        return dto;
     }
 
     // Custom Asset Type methods
@@ -304,7 +179,7 @@ public class ConfigurationService {
     }
 
     @Transactional
-    public CustomLiabilityTypeDTO saveCustomLiabilityType( CustomLiabilityTypeDTO dto) {
+    public CustomLiabilityTypeDTO saveCustomLiabilityType(CustomLiabilityTypeDTO dto) {
         User user = this.getCurrentUser();
 
         // Generate type name from display name if not provided
@@ -375,21 +250,5 @@ public class ConfigurationService {
         dto.setIsActive(customType.getIsActive());
         return dto;
     }
-
-    private void ensureDefaultCurrencyRates(User user) {
-        List<CurrencyRate> existingRates = currencyRateRepository.findByUser(user);
-        if(existingRates.isEmpty()) {
-            for (Map.Entry<String, CurrencyData> entry : DEFAULT_CURRENCIES.entrySet()) {
-                String code = entry.getKey();
-                CurrencyData data = entry.getValue();
-                CurrencyRate newRate = new CurrencyRate();
-                newRate.setUser(user);
-                newRate.setCurrencyCode(code);
-                newRate.setCurrencyName(data.name);
-                newRate.setRateToInr(data.rate);
-                newRate.setIsActive(true);
-                currencyRateRepository.save(newRate);
-            }
-        }
-    }
 }
+

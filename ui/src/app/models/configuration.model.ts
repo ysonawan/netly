@@ -1,10 +1,3 @@
-export interface CurrencyRate {
-  id?: number;
-  currencyCode: string;
-  currencyName: string;
-  rateToInr: number;
-  isActive: boolean;
-}
 
 export interface CustomAssetType {
   id?: number;
