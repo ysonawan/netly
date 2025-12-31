@@ -13,7 +13,7 @@
 
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-1xl md:text-2xl font-bold text-gray-700 mb-2">Portfolio Dashboard</h1>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-700 mb-2">Portfolio Dashboard</h1>
             <p class="text-gray-600 text-sm">Track your financial health at a glance</p>
         </div>
 
@@ -21,123 +21,96 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         <!-- Total Assets Card -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
-             role="button" tabindex="0"
-             (click)="navigateToAssets()"
-             (keydown.enter)="navigateToAssets()"
-             (keydown.space)="navigateToAssets()">
-          <div class="relative p-4 bg-gradient-to-br from-blue-50 to-blue-100">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-blue-300 rounded-full -mr-12 -mt-12 opacity-20"></div>
-            <div class="relative">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h3 class="text-xs font-medium text-blue-700 uppercase tracking-wider mb-1">Total Assets</h3>
-                  <p class="text-sm text-blue-600 font-medium">{{ summary.totalAssets }} items</p>
-                </div>
-                <div class="p-3 bg-blue-500 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                  </svg>
-                </div>
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer p-4 transform hover:-translate-y-1 border-l-4 border-blue-500"
+               role="button" tabindex="0"
+               (click)="navigateToAssets()"
+               (keydown.enter)="navigateToAssets()"
+               (keydown.space)="navigateToAssets()">
+              <div class="flex items-center justify-between ">
+                  <div class="absolute bottom-0 right-0 w-24 h-24 bg-blue-300 rounded-full -mr-12 -mb-12 opacity-20"></div>
+                  <div>
+                      <p class="text-xs font-medium text-blue-700 uppercase tracking-wide">Total Assets - {{ summary.totalAssets }} items</p>
+                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalValue, userCurrency) }}</p>
+                  </div>
+                  <div class="bg-blue-500 p-3 rounded-lg">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                      </svg>
+                  </div>
               </div>
-              <p class="text-2xl lg:text-2xl font-bold text-gray-700 mb-1">{{ formatCurrency(summary.totalValue) }}</p>
               <div class="flex items-center text-blue-600 text-sm mt-3">
-                <span>View details</span>
-                <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total Liabilities Card -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
-             role="button" tabindex="0"
-             (click)="navigateToLiabilities()"
-             (keydown.enter)="navigateToLiabilities()"
-             (keydown.space)="navigateToLiabilities()">
-          <div class="relative p-4 bg-gradient-to-br from-red-50 to-rose-100">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-red-300 rounded-full -mr-12 -mt-12 opacity-20"></div>
-            <div class="relative">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h3 class="text-xs font-medium text-red-700 uppercase tracking-wider mb-1">Total Liabilities</h3>
-                  <p class="text-sm text-red-600 font-medium">{{ summary.totalLiabilityCount }} active</p>
-                </div>
-                <div class="p-3 bg-red-500 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                  <span>View details</span>
+                  <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
-                </div>
               </div>
-              <p class="text-2xl lg:text-2xl font-bold text-gray-700 mb-1">{{ formatCurrency(summary.totalLiabilities) }}</p>
+          </div>
+          <!-- Total Liabilities Card -->
+          <div class="bg-gradient-to-br from-red-50 to-rose-100 group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer p-4 transform hover:-translate-y-1 border-l-4 border-red-500"
+               role="button" tabindex="0"
+               (click)="navigateToLiabilities()"
+               (keydown.enter)="navigateToLiabilities()"
+               (keydown.space)="navigateToLiabilities()">
+              <div class="flex items-center justify-between ">
+                  <div class="absolute bottom-0 right-0 w-24 h-24 bg-red-300 rounded-full -mr-12 -mb-12 opacity-20"></div>
+                  <div>
+                      <p class="text-xs font-medium text-red-700 uppercase tracking-wide">Total Liabilities - {{ summary.totalLiabilityCount }} active</p>
+                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.totalLiabilities, userCurrency) }}</p>
+                  </div>
+                  <div class="bg-red-500 p-3 rounded-lg">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                      </svg>
+                  </div>
+              </div>
               <div class="flex items-center text-red-600 text-sm mt-3">
-                <span>View details</span>
-                <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Net Worth Card -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
-          <div class="relative p-4 bg-gradient-to-br from-emerald-50 to-teal-100">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-300 rounded-full -mr-12 -mt-12 opacity-20"></div>
-            <div class="relative">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h3 class="text-xs font-medium text-emerald-700 uppercase tracking-wider mb-1">Net Worth</h3>
-                  <p class="text-sm text-emerald-600 font-medium">Assets - Liabilities</p>
-                </div>
-                <div class="p-3 bg-emerald-500 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <span>View details</span>
+                  <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
-                </div>
               </div>
-              <p class="text-2xl lg:text-2xl font-bold text-emerald-700 mb-1">{{ formatCurrency(summary.netWorth) }}</p>
+          </div>
+
+          <!-- Net Worth Card -->
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-100 group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden p-4 transform hover:-translate-y-1 border-l-4 border-emerald-500">
+              <div class="flex items-center justify-between ">
+                  <div class="absolute bottom-0 right-0 w-24 h-24 bg-emerald-300 rounded-full -mr-12 -mb-12 opacity-20"></div>
+                  <div>
+                      <p class="text-xs font-medium text-emerald-700 uppercase tracking-wide">Net Worth - Assets - Liabilities</p>
+                      <p class="text-2xl font-bold text-gray-700 mt-1">{{ formatCurrency(summary.netWorth, userCurrency) }}</p>
+                  </div>
+                  <div class="bg-emerald-500 p-3 rounded-lg">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                  </div>
+              </div>
               <div class="mt-3 text-emerald-600 text-sm">
-                <span>Your financial position</span>
+                  <span>Your financial position</span>
               </div>
-            </div>
           </div>
-        </div>
 
-        <!-- Gain/Loss Card -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
-          <div class="relative p-4" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-gradient-to-br from-green-50 to-lime-100' : 'bg-gradient-to-br from-orange-50 to-amber-100'">
-            <div class="absolute top-0 right-0 w-24 h-24 rounded-full -mr-12 -mt-12 opacity-20" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-green-300' : 'bg-orange-300'"></div>
-            <div class="relative">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h3 class="text-xs font-medium uppercase tracking-wider mb-1" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">
-                    {{ summary.totalGainLoss >= 0 ? 'Total Gain' : 'Total Loss' }}
-                  </h3>
-                  <p class="text-sm font-medium" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-600' : 'text-orange-600'">
-                    {{ formatPercentage(summary.totalGainLossPercentage) }} change
-                  </p>
-                </div>
-                <div class="p-3 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-green-500' : 'bg-orange-500'">
-                  <svg *ngIf="summary.totalGainLoss >= 0" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <svg *ngIf="summary.totalGainLoss < 0" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
+          <!-- Gain/Loss Card -->
+          <div [ngClass]="summary.totalGainLoss >= 0 ? 'bg-gradient-to-br from-green-50 to-lime-100' : 'bg-gradient-to-br from-orange-50 to-amber-100'" class="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden p-4 transform hover:-translate-y-1 border-l-4 border-emerald-500">
+              <div class="flex items-center justify-between ">
+                  <div class="absolute bottom-0 right-0 w-24 h-24 rounded-full -mr-12 -mb-12 opacity-20" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-green-300' : 'bg-orange-300'"></div>
+                  <div>
+                      <p class="text-xs font-medium uppercase tracking-wide" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">{{ summary.totalGainLoss >= 0 ? 'Total Gain' : 'Total Loss' }}</p>
+                      <p class="text-2xl font-bold  mt-1" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">{{ formatCurrency(summary.totalGainLoss, userCurrency) }}</p>
+                  </div>
+                  <div class="p-3 rounded-lg" [ngClass]="summary.totalGainLoss >= 0 ? 'bg-green-500' : 'bg-orange-500'">
+                      <svg *ngIf="summary.totalGainLoss >= 0" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <svg *ngIf="summary.totalGainLoss < 0" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                  </div>
               </div>
-              <p class="text-2xl lg:text-2xl font-bold mb-1" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-700' : 'text-orange-700'">
-                {{ formatCurrency(summary.totalGainLoss) }}
-              </p>
               <div class="mt-3 text-sm" [ngClass]="summary.totalGainLoss >= 0 ? 'text-green-600' : 'text-orange-600'">
-                <span>{{ summary.totalGainLoss >= 0 ? 'Portfolio performing well' : 'Monitor your positions' }}</span>
+                  <span>{{ formatPercentage(summary.totalGainLossPercentage) }} change</span>
               </div>
-            </div>
           </div>
-        </div>
       </div>
 
       <!-- Main Content: Chart and Tables -->
