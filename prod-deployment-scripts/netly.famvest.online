@@ -36,7 +36,7 @@ server {
 
     # API endpoints - proxy to Spring Boot
     location /api/ {
-        proxy_pass http://localhost:8080/api/;
+        proxy_pass http://localhost:8082/api/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -51,7 +51,7 @@ server {
 
     # Serve Angular application (frontend static files)
     location / {
-        proxy_pass http://localhost:8080/;
+        proxy_pass http://localhost:8082/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -68,5 +68,10 @@ server {
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    error_page 502 /502.html;
+    location = /502.html {
+        root /var/www/html;
+        internal;
+    }
 }
 

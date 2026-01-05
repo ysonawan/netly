@@ -8,7 +8,7 @@
 
 ---- Create User ----
 -- https://vault.zoho.in#/unlock/extension?routeName=%23%2Fpasscard%2F63500000000007049
-CREATE USER netly_app_user WITH ENCRYPTED PASSWORD '<Replace with password from zoho vault>';
+CREATE USER netly_app_user WITH ENCRYPTED PASSWORD '123456';
 
 ---- Grant privileges to the user ----
 GRANT CONNECT ON DATABASE netly_app TO netly_app_user;
