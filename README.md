@@ -33,13 +33,13 @@ mvn clean compile install
 ```
 
 ### Step 3: Open Browser
-Go to: http://localhost:8080
+Go to: http://localhost:8082
 
-**Result:** Both frontend and backend are served from port 8080.
+**Result:** Both frontend and backend are served from port 8082.
 
 #### Run
 ```bash
-java -jar target/netly-app-x.x.x.jar
+java -jar target/netly-x.x.x.jar
 ```
 
 ## 6. Configuration
@@ -56,7 +56,7 @@ java -jar target/netly-app-x.x.x.jar
   ```
 - **Run as background service:**
   ```bash
-  nohup java -jar netly-app-x.x.x.jar > app.log 2>&1 &
+  nohup java -jar netly-x.x.x.jar > app.log 2>&1 &
   ```
 
 ## 7. Using the Application
@@ -67,11 +67,75 @@ java -jar target/netly-app-x.x.x.jar
 - **View/Edit/Delete Liability:** Use "My Liabilities" to manage your Liabilities.
 - **Track Performance:** Dashboard auto-calculates gain/loss and allocation.
 
-## 8. Troubleshooting & FAQ
-- **Port 8080 already in use:**
-  ```bash
-  lsof -i :8080
-  # or change the port in application.properties
+## 8. Production Deployment Guide
+
+This guide provides step-by-step instructions for deploying the Netly application to a production server.
+
+### Prerequisites
+
+- Ubuntu/Debian-based server with sudo access
+- Java installed (for running the Spring Boot application)
+- Nginx installed
+- Certbot for SSL certificates
+- Database server (PostgreSQL) configured
+
+### Deployment Steps
+
+1. **Navigate to the deployment directory:**
+   ```bash
+   cd /opt
+   ```
+
+2. **Create application directories:**
+   ```bash
+   mkdir app
+   cd app
+   mkdir netly
+   cd netly
+   mkdir config
+   ```
+
+3. **Copy configuration files:**
+   - Copy your application configuration files (e.g., `application-prod.properties`) to the `/opt/app/netly/config/` directory.
+
+4. **Execute database scripts:**
+   - Run the database schema scripts (e.g., `schema.sql`) to set up the database.
+
+5. **Copy systemd service file:**
+   - Copy the `netly-app.service` file to `/etc/systemd/system/`.
+
+6. **Enable and reload systemd:**
+   ```bash
+   sudo systemctl enable netly-app
+   sudo systemctl daemon-reload
+   ```
+
+7. **Copy Nginx configuration file:**
+   - Copy the `netly.famvest.online` file to `/etc/nginx/sites-available/`.
+
+8. **Obtain SSL certificate:**
+   ```bash
+   sudo certbot --nginx -d netly.famvest.online
+   ```
+
+9. **Enable Nginx site:**
+   ```bash
+   sudo cp /etc/nginx/sites-available/netly.famvest.online /etc/nginx/sites-available/netly.famvest.online
+   cd /etc/nginx/sites-enabled
+   sudo ln -sf /etc/nginx/sites-available/netly.famvest.online netly.famvest.online
+   ```
+
+10. **Restart services:**
+    - Start the Netly application: `sudo systemctl start netly-app`
+    - Restart Nginx: `sudo systemctl restart nginx`
+
+### Notes
+
+- Ensure all file paths and permissions are correctly set.
+- Update configuration files with production-specific settings (database URLs, secrets, etc.).
+- Monitor logs in `/opt/app/netly/logs/` for any issues.
+
+## 9. Troubleshooting & FAQ
   ```
 - **Database connection error:**
   - Ensure PostgreSQL is running and the database exists.

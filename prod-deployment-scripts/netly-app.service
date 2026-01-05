@@ -1,5 +1,5 @@
 [Unit]
-Description=Duebook Application
+Description=Netly Application
 
 After=network.target nginx.service postgresql.service
 Requires=nginx.service postgresql.service
@@ -8,8 +8,8 @@ Requires=nginx.service postgresql.service
 Restart=always
 RestartSec=5
 User=root
-WorkingDirectory=/opt/app/netly-app
-ExecStart=/usr/bin/java -jar /opt/app/netly-app/netly-app.jar
+WorkingDirectory=/opt/app/netly
+ExecStart=/usr/bin/java -jar /opt/app/netly/netly-app.jar
 SuccessExitStatus=143
 
 [Install]
