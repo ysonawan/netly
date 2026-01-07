@@ -58,7 +58,6 @@ export class LiabilityFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading liability:', error);
-        Swal.fire('Error!', 'Failed to load liability', 'error');
         this.router.navigate(['/liabilities']);
       }
     });
@@ -81,7 +80,6 @@ export class LiabilityFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating liability:', error);
-          Swal.fire('Error!', 'Failed to update liability', 'error');
           this.loading = false;
         }
       });
@@ -94,7 +92,6 @@ export class LiabilityFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating liability:', error);
-          Swal.fire('Error!', 'Failed to create liability', 'error');
           this.loading = false;
         }
       });

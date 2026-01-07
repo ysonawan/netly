@@ -25,6 +25,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import {ProfileComponent} from "./components/profile/profile.component";
 import {BudgetComponent} from "./components/budget/budget.component";
 import {BudgetService} from "./services/budget.service";
+import {HttpErrorInterceptor} from "./interceptors/http-error.interceptor";
 
 @NgModule({
     declarations: [
@@ -68,6 +69,12 @@ import {BudgetService} from "./services/budget.service";
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,
+            multi: true
+        },
+        // HttpErrorInterceptor runs after to handle all other errors
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: HttpErrorInterceptor,
             multi: true
         },
         {

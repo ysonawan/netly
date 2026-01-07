@@ -5,13 +5,21 @@ import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 
+/**
+ * Auth Interceptor - Adds JWT token to requests and handles auth-specific errors
+ * This interceptor should run BEFORE HttpErrorInterceptor to handle auth errors first
+ */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.token;
 
+    // Add token to request if available
     if (token) {
       request = request.clone({
         setHeaders: {
@@ -34,4 +42,6 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 }
+
+
 

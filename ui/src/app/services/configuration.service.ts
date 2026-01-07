@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root'
 })
 export class ConfigurationService {
-  private apiUrl = environment.apiUrl || 'http://localhost:8080/api';
+  private apiUrl = environment.apiUrl || 'http://localhost:8082/api';
 
   constructor(private http: HttpClient) {}
 

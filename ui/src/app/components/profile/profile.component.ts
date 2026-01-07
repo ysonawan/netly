@@ -55,7 +55,6 @@ export class ProfileComponent implements OnInit {
       error: (error) => {
         console.error('Error loading profile:', error);
         this.loading = false;
-        this.showMessage('error', 'Failed to load profile');
       }
     });
   }
@@ -110,7 +109,6 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.saving = false;
-        this.showMessage('error', error?.error?.message || 'Failed to remove email');
       }
     });
   }
@@ -125,7 +123,6 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.otpLoading = false;
-        this.showMessage('error', error?.error?.message || 'Failed to send OTP');
         this.closeOtpModal();
       }
     });
@@ -155,7 +152,6 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.otpVerificationInProgress = false;
-        this.showMessage('error', error?.error?.message || 'OTP verification failed. Please try again.');
       }
     });
   }
@@ -178,7 +174,6 @@ export class ProfileComponent implements OnInit {
       error: (error) => {
         console.error('Error sending report:', error);
         this.sendingReport = false;
-        this.showMessage('error', error?.error?.message || 'Failed to send portfolio report. Please try again.');
       }
     });
   }
@@ -193,7 +188,6 @@ export class ProfileComponent implements OnInit {
       error: (error) => {
         console.error('Error sending budget report:', error);
         this.sendingBudgetReport = false;
-        this.showMessage('error', error?.error?.message || 'Failed to send budget report. Please try again.');
       }
     });
   }
@@ -233,7 +227,6 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.otpLoading = false;
-        this.showMessage('error', error?.error?.message || 'Failed to send OTP to new email address');
         this.closeOtpModal();
       }
     });

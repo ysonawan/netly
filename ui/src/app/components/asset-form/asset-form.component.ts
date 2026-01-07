@@ -58,7 +58,6 @@ export class AssetFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading asset:', error);
-                Swal.fire('Error!', 'Failed to load asset', 'error');
                 this.router.navigate(['/assets']);
             }
         });
@@ -81,7 +80,6 @@ export class AssetFormComponent implements OnInit {
                 },
                 error: (error) => {
                     console.error('Error updating asset:', error);
-                    Swal.fire('Error!', 'Failed to update asset', 'error');
                     this.loading = false;
                 }
             });
@@ -94,7 +92,6 @@ export class AssetFormComponent implements OnInit {
                 },
                 error: (error) => {
                     console.error('Error creating asset:', error);
-                    Swal.fire('Error!', 'Failed to create asset', 'error');
                     this.loading = false;
                 }
             });

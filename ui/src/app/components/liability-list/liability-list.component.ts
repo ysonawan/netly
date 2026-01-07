@@ -136,7 +136,6 @@ export class LiabilityListComponent implements OnInit {
                     },
                     error: (error) => {
                         console.error('Error deleting liability:', error);
-                        Swal.fire('Error!', 'Failed to delete liability', 'error');
                     }
                 });
             }

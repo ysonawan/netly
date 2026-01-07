@@ -69,7 +69,6 @@ export class BudgetComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading budget items:', error);
-        Swal.fire('Error', 'Failed to load budget data', 'error');
         this.loading = false;
       }
     });
@@ -143,7 +142,6 @@ export class BudgetComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error creating income item:', error);
-        Swal.fire('Error', 'Failed to add income item', 'error');
       }
     });
   }
@@ -163,7 +161,6 @@ export class BudgetComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error creating expense item:', error);
-        Swal.fire('Error', 'Failed to add expense item', 'error');
       }
     });
   }
@@ -211,7 +208,6 @@ export class BudgetComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating income item:', error);
-        Swal.fire('Error', 'Failed to update income item', 'error');
       }
     });
   }
@@ -232,7 +228,6 @@ export class BudgetComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating expense item:', error);
-        Swal.fire('Error', 'Failed to update expense item', 'error');
       }
     });
   }
@@ -257,7 +252,6 @@ export class BudgetComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error deleting income item:', error);
-            Swal.fire('Error', 'Failed to delete income item', 'error');
           }
         });
       }
@@ -284,7 +278,6 @@ export class BudgetComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error deleting expense item:', error);
-            Swal.fire('Error', 'Failed to delete expense item', 'error');
           }
         });
       }

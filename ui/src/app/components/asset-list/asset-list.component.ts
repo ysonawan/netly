@@ -121,7 +121,6 @@ export class AssetListComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error deleting asset:', error);
-            Swal.fire('Error!', 'Failed to delete asset', 'error');
           }
         });
       }

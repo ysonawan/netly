@@ -8,12 +8,12 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl || 'http://localhost:8080/api';
+  private apiUrl = environment.apiUrl || 'http://localhost:8082/api';
   private currentUserSubject: BehaviorSubject<AuthResponse | null>;
   public currentUser: Observable<AuthResponse | null>;
 
   constructor(private http: HttpClient) {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem('netly-current-user');
     this.currentUserSubject = new BehaviorSubject<AuthResponse | null>(
       storedUser ? JSON.parse(storedUser) : null
     );
@@ -32,8 +32,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
-          localStorage.setItem('currentUser', JSON.stringify(response));
-          localStorage.setItem('token', response.token);
+          localStorage.setItem('netly-current-user', JSON.stringify(response));
+          localStorage.setItem('netly-token', response.token);
           this.currentUserSubject.next(response);
         })
       );
@@ -43,16 +43,16 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/signup`, userData)
       .pipe(
         tap(response => {
-          localStorage.setItem('currentUser', JSON.stringify(response));
-          localStorage.setItem('token', response.token);
+          localStorage.setItem('netly-current-user', JSON.stringify(response));
+          localStorage.setItem('netly-token', response.token);
           this.currentUserSubject.next(response);
         })
       );
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('token');
+    localStorage.removeItem('netly-current-user');
+    localStorage.removeItem('netly-token');
     this.currentUserSubject.next(null);
   }
 
@@ -64,8 +64,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/verify-otp`, data)
       .pipe(
         tap(response => {
-          localStorage.setItem('currentUser', JSON.stringify(response));
-          localStorage.setItem('token', response.token);
+          localStorage.setItem('netly-current-user', JSON.stringify(response));
+          localStorage.setItem('netly-token', response.token);
           this.currentUserSubject.next(response);
         })
       );
