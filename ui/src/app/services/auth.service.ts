@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { AuthResponse, LoginRequest, SignupRequest } from '../models/auth.model';
+import {AuthResponse, GoogleClientIdResponse, LoginRequest, SignupRequest} from '../models/auth.model';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -27,6 +27,19 @@ export class AuthService {
   public get token(): string | null {
     return this.currentUserValue?.token || null;
   }
+
+    getGoogleClientId(): Observable<GoogleClientIdResponse> {
+        return this.http.get<GoogleClientIdResponse>(`${this.apiUrl}/auth/google-client-id`);
+    }
+
+    googleAuth(idToken: string) {
+        return this.http.post<any>(`${this.apiUrl}/auth/google` , { token: idToken })
+            .pipe(tap(response => {
+                localStorage.setItem('netly-current-user', JSON.stringify(response));
+                localStorage.setItem('netly-token', response.token);
+                this.currentUserSubject.next(response);
+            }));
+    }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)

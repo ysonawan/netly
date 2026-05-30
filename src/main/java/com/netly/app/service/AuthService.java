@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -66,6 +68,24 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtUtil.generateToken(userDetails);
 
+        return new AuthResponse(token, user.getId(), user.getName(), user.getEmail());
+    }
+
+    public AuthResponse googleLoginOrSignup(String email, String name) {
+        // Load user details
+        User user;
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if(userOptional.isEmpty()) {
+            user = new User();
+            user.setName(name);
+            user.setEmail(email);
+            User saveuserdUser = userRepository.save(user);
+        } else {
+            user = userOptional.get();
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        // Generate token
+        String token = jwtUtil.generateToken(userDetails);
         return new AuthResponse(token, user.getId(), user.getName(), user.getEmail());
     }
 

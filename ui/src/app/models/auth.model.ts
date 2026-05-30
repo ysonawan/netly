@@ -23,3 +23,7 @@ export interface SignupRequest {
   password: string;
 }
 
+export interface GoogleClientIdResponse {
+  googleClientId : string
+}
+

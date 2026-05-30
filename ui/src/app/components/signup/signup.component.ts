@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+declare const google: any;
 
 @Component({
     selector: 'app-signup',
@@ -10,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
     styleUrls: ['./signup.component.css'],
     standalone: false
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit, AfterViewInit {
   signupForm: FormGroup;
   loading = false;
 
@@ -43,6 +44,57 @@ export class SignupComponent {
     }
 
     return null;
+  }
+
+  ngOnInit(): void {
+
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.renderGoogleButton();
+    }, 10);
+  }
+
+  renderGoogleButton() {
+    const el = document.getElementById("google-btn");
+    if (!el) return;
+    // ✅ Clear old button (important after navigation)
+    el.innerHTML = '';
+    this.authService.getGoogleClientId().subscribe({
+      next: (response) => {
+        google.accounts.id.initialize({
+          client_id: response.googleClientId,
+          callback: (response: any) => this.handleGoogleLogin(response)
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("google-btn"), {theme: "outline", size: "large"}
+        );
+      },
+      error: (error) => {
+        if(error.error.message) {
+          this.toastr.error(error.error.message, 'Error');
+        } else {
+          console.error("Failed to load Google Client ID", error);
+        }
+      }
+    });
+  }
+
+  handleGoogleLogin(response: any) {
+    const idToken = response.credential;
+    this.authService.googleAuth(idToken).subscribe({
+      next: (response) => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        if(error.error.message) {
+          this.toastr.error(error.error.message, 'Error');
+        } else {
+          this.toastr.error('An unexpected error occurred during Google login. Please different login option.', 'Error');
+        }
+      }
+    });
   }
 
   get f() {
