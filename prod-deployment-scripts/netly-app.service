@@ -1,6 +1,5 @@
 [Unit]
 Description=Netly Application
-
 After=network.target nginx.service postgresql.service
 Requires=nginx.service postgresql.service
 
@@ -10,31 +9,27 @@ RestartSec=5
 User=root
 WorkingDirectory=/opt/app/netly
 
-# JVM memory flags for 1GB server - VERY conservative
 ExecStart=/usr/bin/java \
-  -Xmx512m \
   -Xms128m \
-  -XX:MaxDirectMemorySize=128m \
-  -XX:MaxMetaspaceSize=128m \
-  -XX:MetaspaceSize=64m \
+  -Xmx512m \
   -XX:+UseG1GC \
   -XX:MaxGCPauseMillis=500 \
-  -XX:G1HeapRegionSize=4m \
   -Xss256k \
-  -XX:+UseCompressedOops \
-  -XX:+UseCompressedClassPointers \
   -Xlog:gc*:file=/var/log/netly/gc.log:time,uptime:filecount=5,filesize=10m \
+  -Dserver.tomcat.threads.max=20 \
   -jar /opt/app/netly/netly.jar
 
 SuccessExitStatus=143
 
-# Systemd memory limits for 1GB server
-MemoryLimit=512M
 MemoryHigh=384M
-CPUQuota=50%
+MemoryMax=512M
 
-# Aggressive OOM protection
-OOMScoreAdjust=-800
+# LOWER priority (important)
+Nice=10
+CPUWeight=20
+
+# Allow it to be killed first if needed
+OOMScoreAdjust=200
 
 [Install]
 WantedBy=multi-user.target
